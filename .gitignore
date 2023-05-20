@@ -1,2 +1,6 @@
-node_modules/
-dist/
+**/.terraform
+**/terraform.tfstate*
+
+**/node_modules
+
+**/pat.txt
