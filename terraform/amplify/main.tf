@@ -17,12 +17,12 @@ resource "aws_amplify_app" "isucon_portal" {
           commands:
             - yarn run build
       artifacts:
-        baseDirectory: dist
+        baseDirectory: frontend/dist
         files:
           - '**/*'
       cache:
         paths:
-          - node_modules/**/*
+          - frontend/node_modules/**/*
   EOT
 
   enable_auto_branch_creation = true
