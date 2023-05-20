@@ -43,7 +43,7 @@ resource "aws_amplify_app" "isucon_portal" {
   }
 }
 
-resource "aws_amplify_branch" "main" {
+resource "aws_amplify_branch" "master" {
   app_id  = aws_amplify_app.isucon_portal.id
-  branch_name = "main"
+  branch_name = "master"
 }
