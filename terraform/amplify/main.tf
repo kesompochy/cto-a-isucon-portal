@@ -28,6 +28,7 @@ resource "aws_amplify_app" "isucon_portal" {
   enable_auto_branch_creation = true
 
   auto_branch_creation_patterns = [
+    "master",
     "portal/**",
   ]
 
