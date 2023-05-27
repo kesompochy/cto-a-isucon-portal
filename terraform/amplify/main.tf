@@ -7,25 +7,7 @@ resource "aws_amplify_app" "isucon_portal" {
   repository = var.repository
   access_token = var.access_token
 
-  build_spec = <<-EOT
-    version: 0.1
-    frontend:
-      phases:
-        preBuild:
-          commands:
-            - cd frontend
-            - yarn
-        build:
-          commands:
-            - yarn run build
-      artifacts:
-        baseDirectory: frontend/dist
-        files:
-          - '**/*'
-      cache:
-        paths:
-          - frontend/node_modules/**/*
-  EOT
+  build_spec = file("${path.module}/build_spec.yaml")
 
   enable_auto_branch_creation = true
 
