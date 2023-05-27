@@ -4,8 +4,8 @@ provider "aws" {
 
 resource "aws_amplify_app" "isucon_portal" {
   name       = "isucon-portal"
-  repository = "https://github.com/kesompochy/cto-a-isucon-portal"
-  access_token = file("${path.module}/pat.txt")
+  repository = var.repository
+  access_token = var.access_token
 
   build_spec = <<-EOT
     version: 0.1
