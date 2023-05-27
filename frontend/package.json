@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aws-amplify/ui-components": "^1.9.40",
+    "@aws-amplify/ui-vue": "^3.1.18",
+    "aws-amplify": "^5.2.4",
     "vue": "^3.2.47"
   },
   "devDependencies": {
