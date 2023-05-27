@@ -1,4 +1,6 @@
-
+provider "aws" {
+  region = "ap-northeast-1"
+}
 
 resource "aws_amplify_app" "isucon_portal" {
   name       = "isucon-portal"
