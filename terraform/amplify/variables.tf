@@ -5,6 +5,6 @@ variable "access_token" {
 
 variable "repository" {
   description = "Repository URL for the Amplify CD"
-  type        = "string"
+  type        = string
   default     = "https://github.com/kesompochy/cto-a-isucon-portal"
 }
