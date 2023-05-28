@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue';
+  import { ref } from 'vue';
   import { API, Auth, graphqlOperation } from 'aws-amplify';
   import { Authenticator } from '@aws-amplify/ui-vue';
   import { getAllScores } from './graphql/queries/getAllScores';
@@ -7,11 +7,9 @@
 
   const fetchScores = async ()=> {
     Auth.currentAuthenticatedUser({ bypassCache: true })
-      .then(async (user) => {
-        console.log(user)
+      .then(async () => {
         try {
           const result = await API.graphql(graphqlOperation(getAllScores));
-          console.log(result)
           if ('data' in result) {
             const fetchedScore = result.data.getAllScores;
             console.log(fetchedScore)
