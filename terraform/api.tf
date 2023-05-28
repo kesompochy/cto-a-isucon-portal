@@ -11,14 +11,15 @@ resource "aws_dynamodb_table" "portal_scores" {
 
 resource "aws_appsync_graphql_api" "portal_api" {
   name                = "portal_api"
-  authentication_type = "API_KEY"
+  authentication_type = "AMAZON_COGNITO_USER_POOLS"
+  user_pool_config {
+    aws_region     = "ap-northeast-1"
+    user_pool_id   = aws_cognito_user_pool.main.id
+    default_action = "ALLOW"
+  }
 
   additional_authentication_provider {
-    authentication_type = "AMAZON_COGNITO_USER_POOLS"
-    user_pool_config {
-      aws_region     = "ap-northeast-1"
-      user_pool_id   = aws_cognito_user_pool.main.id
-    }
+    authentication_type = "API_KEY"
   }
 
   schema = file("${path.module}/schema.graphql")
@@ -44,6 +45,33 @@ resource "aws_iam_role" "portal_api_datasource_role" {
   EOF
 }
 
+resource "aws_iam_policy" "portal_api_datasource_policy" {
+  name   = "portal_api_datasource_policy"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:Scan",
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem"
+      ],
+      "Resource": "arn:aws:dynamodb:*:*:table/portal_scores"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "portal_api_datasource_policy_attachment" {
+  role       = aws_iam_role.portal_api_datasource_role.name
+  policy_arn = aws_iam_policy.portal_api_datasource_policy.arn
+}
+
 resource "aws_cognito_user_pool" "main" {
   name = "portal_user_pool"
 }
@@ -53,14 +81,27 @@ resource "aws_cognito_user_pool_client" "main" {
   user_pool_id = aws_cognito_user_pool.main.id
 }
 
-resource "aws_cognito_identity_pool" "main" {
-  identity_pool_name = "portal_identity_pool"
-  allow_unauthenticated_identities = false
-
-  cognito_identity_providers {
-    client_id = aws_cognito_user_pool_client.main.id
-    provider_name = replace(aws_cognito_user_pool.main.endpoint, "https://", "")
-  }
+resource "aws_iam_role" "authenticated_user" {
+  name               = "authed_user_role"
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Federated": "cognito-identity.amazonaws.com"
+            },
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {
+                "ForAnyValue:StringLike": {
+                    "cognito-identity.amazonaws.com:amr": "authenticated"
+                }
+            }
+        }
+    ]
+}
+EOF
 }
 
 resource "aws_appsync_datasource" "portal_api_datasource" {
@@ -74,15 +115,15 @@ resource "aws_appsync_datasource" "portal_api_datasource" {
     }
 }
 
-resource "aws_appsync_resolver" "Query_getTeamScore" {
+resource "aws_appsync_resolver" "Query_getAllScores" {
   api_id = aws_appsync_graphql_api.portal_api.id
   type = "Query"
-  field = "getTeamScore"
+  field = "getAllScores"
   
   data_source = aws_appsync_datasource.portal_api_datasource.name
 
-  request_template  = file("${path.module}/templates/getTeamScore-request.vtl")
-  response_template = file("${path.module}/templates/getTeamScore-response.vtl")
+  request_template  = file("${path.module}/templates/getAllScores-request.vtl")
+  response_template = file("${path.module}/templates/getAllScores-response.vtl")
 }
 
 resource "aws_appsync_resolver" "Mutation_updateTeamScore" {
@@ -103,9 +144,4 @@ resource "aws_appsync_api_key" "api_key" {
 output "cognito_user_pool_client_id" {
   value = aws_cognito_user_pool_client.main.id
   description = "ID of the Cognito User Pool Client"
-}
-
-output "cognito_identity_pool_id" {
-  value = aws_cognito_identity_pool.main.id
-  description = "ID of the Cognito Identity Pool"
 }

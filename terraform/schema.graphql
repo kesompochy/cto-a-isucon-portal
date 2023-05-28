@@ -9,9 +9,9 @@ type TeamScore {
 }
 
 type Query {
-  getTeamScore(team_id: ID!): TeamScore
+  getAllScores: [TeamScore]! @aws_cognito_user_pools
 }
 
 type Mutation {
-  updateTeamScore(team_id: ID!, pass: Boolean!, score: Int!, success: Int!, fail: Int!, messages: [String!], timestamp: Int!): TeamScore
+  updateTeamScore(team_id: ID!, pass: Boolean!, score: Int!, success: Int!, fail: Int!, messages: [String!], timestamp: Int!): TeamScore @aws_api_key
 }
