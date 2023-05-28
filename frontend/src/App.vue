@@ -1,15 +1,43 @@
 <script setup lang="ts">
+  import { onMounted, ref } from 'vue';
+  import { API, Auth, graphqlOperation } from 'aws-amplify';
   import { Authenticator } from '@aws-amplify/ui-vue';
+  import { getAllScores } from './graphql/queries/getAllScores';
   import '@aws-amplify/ui-vue/styles.css'
+
+  const fetchScores = async ()=> {
+    Auth.currentAuthenticatedUser({ bypassCache: true })
+      .then(async (user) => {
+        console.log(user)
+        try {
+          const result = await API.graphql(graphqlOperation(getAllScores));
+          console.log(result)
+          if ('data' in result) {
+            const fetchedScore = result.data.getAllScores;
+            console.log(fetchedScore)
+            return score
+          }
+          return 0
+        } catch (e) {
+          console.error('Error fetching score', e)
+          return 0
+        }
+      })
+      .catch((err) => console.log(err));
+
+  }
+  let score = ref(0)
 </script>
 
 <template>
-  <authenticator>
-    <template v-slot="{ user, signOut }">
-      <h1>Hello {{ user.username }}!</h1>
-      <button @click="signOut">Sign Out</button>
-    </template>
-  </authenticator>
+    <button @click="fetchScores">Get Score</button>
+    <authenticator>
+      <template v-slot="{ user, signOut }">
+        <h1>Hello {{ user.username }}!</h1>
+        <button @click="signOut">Sign Out</button>
+        <h1>{{ score }}</h1>
+      </template>
+    </authenticator>
 </template>
 
 <style scoped>
