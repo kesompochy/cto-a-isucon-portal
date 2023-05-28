@@ -31,6 +31,17 @@ resource "aws_appsync_graphql_api" "portal_api" {
   schema = file("${path.module}/schema.graphql")
 }
 
+resource "aws_appsync_datasource" "portal_api_datasource" {
+    api_id           = aws_appsync_graphql_api.portal_api.id
+    name             = "portal_api_datasource"
+    type             = "AMAZON_DYNAMODB"
+    service_role_arn = aws_iam_role.portal_api_datasource_role.arn
+
+    dynamodb_config {
+        table_name = aws_dynamodb_table.portal_scores.name
+    }
+}
+
 resource "aws_iam_role" "portal_api_datasource_role" {
   name = "portal_api_datasource_role"
 
@@ -78,49 +89,6 @@ resource "aws_iam_role_policy_attachment" "portal_api_datasource_policy_attachme
   policy_arn = aws_iam_policy.portal_api_datasource_policy.arn
 }
 
-resource "aws_cognito_user_pool" "main" {
-  name = "portal_user_pool"
-}
-
-resource "aws_cognito_user_pool_client" "main" {
-  name = "portal_user_pool_client"
-  user_pool_id = aws_cognito_user_pool.main.id
-}
-
-resource "aws_iam_role" "authenticated_user" {
-  name               = "authed_user_role"
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "Federated": "cognito-identity.amazonaws.com"
-            },
-            "Action": "sts:AssumeRoleWithWebIdentity",
-            "Condition": {
-                "ForAnyValue:StringLike": {
-                    "cognito-identity.amazonaws.com:amr": "authenticated"
-                }
-            }
-        }
-    ]
-}
-EOF
-}
-
-resource "aws_appsync_datasource" "portal_api_datasource" {
-    api_id           = aws_appsync_graphql_api.portal_api.id
-    name             = "portal_api_datasource"
-    type             = "AMAZON_DYNAMODB"
-    service_role_arn = aws_iam_role.portal_api_datasource_role.arn
-
-    dynamodb_config {
-        table_name = aws_dynamodb_table.portal_scores.name
-    }
-}
-
 resource "aws_appsync_resolver" "Query_getAllScores" {
   api_id = aws_appsync_graphql_api.portal_api.id
   type = "Query"
@@ -141,6 +109,15 @@ resource "aws_appsync_resolver" "Mutation_updateTeamScore" {
 
   request_template  = file("${path.module}/templates/updateTeamScore-request.vtl")
   response_template = file("${path.module}/templates/updateTeamScore-response.vtl")
+}
+
+resource "aws_cognito_user_pool" "main" {
+  name = "portal_user_pool"
+}
+
+resource "aws_cognito_user_pool_client" "main" {
+  name = "portal_user_pool_client"
+  user_pool_id = aws_cognito_user_pool.main.id
 }
 
 resource "aws_appsync_api_key" "api_key" {
