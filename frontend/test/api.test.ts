@@ -1,7 +1,3 @@
-import { API, Auth, graphqlOperation } from 'aws-amplify'
-
-import { describe, test, vi, expect } from 'vitest'
-
 describe('API mock test', () => {
     const standardMockScores = [
         {

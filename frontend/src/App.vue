@@ -1,10 +1,24 @@
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import Authenticator from './components/Authenticator.vue'
+  import { ref, onBeforeMount } from 'vue';
   import { API, Auth, graphqlOperation } from 'aws-amplify';
-  import { Authenticator } from '@aws-amplify/ui-vue';
+  //import { Authenticator } from '@aws-amplify/ui-vue';
   import { getAllScores } from './graphql/queries/getAllScores';
   import '@aws-amplify/ui-vue/styles.css'
 
+  const isAuthenticated = ref(false)
+
+  onBeforeMount(() => {
+    Auth.currentAuthenticatedUser({ bypassCache: true })
+      .then(() => {
+        isAuthenticated.value = true
+        
+      })
+      .catch(() => {
+        isAuthenticated.value = false
+      })
+  })
+  
   const fetchScores = async ()=> {
     Auth.currentAuthenticatedUser({ bypassCache: true })
       .then(async () => {
@@ -13,7 +27,6 @@
           if ('data' in result) {
             const fetchedScore = result.data.getAllScores;
             console.log(fetchedScore)
-            return score
           }
           return 0
         } catch (e) {
@@ -22,27 +35,26 @@
         }
       })
       .catch((err) => console.log(err));
-
   }
-  let score = ref(0)
-
-  const isAuthenticated = ref(false)
+  
+  const signOut = async () => {
+    try {
+      await Auth.signOut();
+      isAuthenticated.value = false
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  
 </script>
 
 <template>
-    <div v-if="isAuthenticated">
-      <button @click="fetchScores">Get Score</button>
-    </div>
-    <div v-else>
-      <authenticator>
-        <template v-slot="{ user, signOut }">
-          <h1>Hello {{ user.username }}!</h1>
-          <button @click="signOut">Sign Out</button>
-          <h1>{{ score }}</h1>
-        </template>
-      </authenticator>
-    </div>
-
+  <div v-if="isAuthenticated">
+    <button @click="fetchScores">Get Score</button>
+    <button @click="signOut">Sign Out</button>
+  </div>
+  <Authenticator v-else :onSignIn="()=>{fetchScores();isAuthenticated=true;}">
+  </Authenticator>
 </template>
 
 <style scoped>
