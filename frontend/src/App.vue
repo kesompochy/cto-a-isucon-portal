@@ -1,18 +1,19 @@
 <script setup lang="ts">
   import Authenticator from './components/Authenticator.vue'
+  import LineChart from './components/LineChart.vue'
   import { ref, onBeforeMount } from 'vue';
   import { API, Auth, graphqlOperation } from 'aws-amplify';
-  //import { Authenticator } from '@aws-amplify/ui-vue';
   import { getAllScores } from './graphql/queries/getAllScores';
-  import '@aws-amplify/ui-vue/styles.css'
+  //import '@aws-amplify/ui-vue/styles.css'
 
   const isAuthenticated = ref(false)
+
+  const scores = ref([])
 
   onBeforeMount(() => {
     Auth.currentAuthenticatedUser({ bypassCache: true })
       .then(() => {
         isAuthenticated.value = true
-        
       })
       .catch(() => {
         isAuthenticated.value = false
@@ -27,6 +28,7 @@
           if ('data' in result) {
             const fetchedScore = result.data.getAllScores;
             console.log(fetchedScore)
+            scores.value = fetchedScore
           }
           return 0
         } catch (e) {
@@ -50,6 +52,7 @@
 
 <template>
   <div v-if="isAuthenticated">
+    <LineChart :scores="scores"/>
     <button @click="fetchScores">Get Score</button>
     <button @click="signOut">Sign Out</button>
   </div>

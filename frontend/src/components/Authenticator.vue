@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { Auth } from 'aws-amplify';
-    import { ref, defineProps } from 'vue';
+    import { ref } from 'vue';
 
     const props = defineProps({
         onSignIn: {
