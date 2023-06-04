@@ -169,7 +169,7 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 	<div class="legend">
 		<div v-for="(color, index) in colors" :key="index" class="legend-item">
 			<span class="legend-color" :style="{ background: color }"></span>
-			<span class="legend-label">チーム {{ index + 1 }}</span>
+			<span class="legend-label">チーム {{ index }}</span>
 		</div>
 	</div>
 </template>
