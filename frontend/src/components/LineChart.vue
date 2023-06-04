@@ -1,13 +1,14 @@
 <script lang="ts" setup>
-import { onMounted, ref, nextTick, watch } from 'vue';
+import { onMounted, ref, nextTick, watch, computed } from 'vue';
 import { Score } from '../interfaces';
 
 interface Props {
 	scores: Score[];
 	colors: string[];
+	screenSize: { width: number; height: number };
 }
 
-const props = defineProps<Props>();
+const displayResolution = window.devicePixelRatio || 1;
 
 const padding = {
 	top: 20,
@@ -15,6 +16,11 @@ const padding = {
 	bottom: 50, // increased for labels
 	left: 70, // increased for labels
 };
+
+const props = defineProps<Props>();
+
+const canvasRef = ref<HTMLCanvasElement | null>(null);
+const ctxRef = ref<CanvasRenderingContext2D | null | undefined>(null);
 
 watch(
 	() => props.scores,
@@ -27,16 +33,14 @@ watch(
 	},
 );
 
-const canvasRef = ref<HTMLCanvasElement | null>(null);
-const ctxRef = ref<CanvasRenderingContext2D | null | undefined>(null);
-
 onMounted(async () => {
 	await nextTick();
 	if (!canvasRef.value) {
 		console.error('canvas要素が存在しません');
 		return;
 	}
-	resizeCanvas(canvasRef.value);
+	resizeCanvas();
+	canvasRef.value.addEventListener('resize', resizeCanvas);
 	ctxRef.value = canvasRef?.value?.getContext('2d');
 	if (!ctxRef.value) {
 		console.error('canvas要素が存在しません');
@@ -45,9 +49,24 @@ onMounted(async () => {
 	render(ctxRef.value, props.scores, props.colors);
 });
 
-const resizeCanvas = (canvas: HTMLCanvasElement) => {
-	canvas.width = canvas.clientWidth * window.devicePixelRatio;
-	canvas.height = canvas.clientHeight * window.devicePixelRatio;
+const resolution = computed<{ width: number; height: number }>(() => {
+	if (!canvasRef.value) {
+		return { width: 1, height: 1 };
+	}
+	const canvas = canvasRef.value;
+	const screenSize = props.screenSize;
+	const width = screenSize.width / canvas.width;
+	const height = screenSize.height / canvas.height;
+	return { width: width, height: height };
+});
+
+const resizeCanvas = () => {
+	if (!canvasRef.value) {
+		return;
+	}
+	const canvas = canvasRef.value;
+	canvas.width = canvas.clientWidth * displayResolution;
+	canvas.height = canvas.clientHeight * displayResolution;
 };
 
 const formatTimeAsHHMM = (timestamp: number) => {
@@ -73,15 +92,17 @@ const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo) => {
 	const scoreStepMajor = maxScore <= 1000 ? 100 : 1000;
 	const timestampStepMajor = 60 * 60; // 1 hour
 	const timestampStepMinor = 10 * 60; // 10 minutes
+	const screenSize = props.screenSize;
 
 	ctx.strokeStyle = 'grey';
 	ctx.fillStyle = 'black';
 	ctx.textBaseline = 'middle';
+	ctx.font = `${padding.bottom / 2}px sans-serif`;
 	for (let score = 0; score <= maxScore; score += scoreStepMajor) {
 		const y = scaleY(score);
 		ctx.beginPath();
 		ctx.moveTo(padding.left, y);
-		ctx.lineTo(ctx.canvas.width - padding.right, y);
+		ctx.lineTo(screenSize.width - padding.right, y);
 		ctx.stroke();
 
 		ctx.fillText(score.toString(), padding.left / 2, y);
@@ -89,33 +110,37 @@ const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo) => {
 
 	// Draw grid and labels for timestamps.
 	ctx.textAlign = 'center';
+	ctx.font = `${padding.bottom / 2}px sans-serif`;
 	for (let timestamp = minTimestamp; timestamp <= maxTimestamp; timestamp += timestampStepMinor) {
 		const x = scaleX(timestamp);
 		if ((timestamp - minTimestamp) % timestampStepMajor === 0) {
-			ctx.fillText(formatTimeAsHHMM(timestamp), x, ctx.canvas.height - padding.bottom / 2);
+			ctx.fillText(formatTimeAsHHMM(timestamp), x, screenSize.height - padding.bottom / 2);
 		}
 	}
 };
 
 const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]) => {
 	console.log('start rendering');
-	// Clear canvas.
-	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-	scores.sort((a, b) => a.timestamp - b.timestamp);
-
 	const minScore = Math.min(...scores.map((score) => score.score));
 	const maxScore = Math.max(...scores.map((score) => score.score));
 	const minTimestamp = scores[0].timestamp;
 	const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+	const screenSize = props.screenSize;
+
+	ctx.scale(1 / resolution.value.width, 1 / resolution.value.height);
+
+	// Clear canvas.
+	ctx.clearRect(0, 0, props.screenSize.width, props.screenSize.height);
+
+	scores.sort((a, b) => a.timestamp - b.timestamp);
 
 	const scaleX = (timestamp: number) =>
 		padding.left +
 		((timestamp - minTimestamp) / (currentTimestamp - minTimestamp)) *
-			(ctx.canvas.width - padding.left - padding.right);
+			(screenSize.width - padding.left - padding.right);
 	const scaleY = (score: number) =>
 		padding.top +
-		(ctx.canvas.height - padding.top - padding.bottom) -
+		(screenSize.height - padding.top - padding.bottom) -
 		((score - minScore) / (maxScore - minScore)) *
 			(ctx.canvas.height - padding.top - padding.bottom);
 	drawGrids(ctx, {
@@ -177,8 +202,8 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 <style lang="scss" scoped>
 canvas {
 	//border: 1px solid #000;
-	width: 400px;
-	height: 300px;
+	width: 600px;
+	height: 450px;
 }
 .legend {
 	display: flex;
