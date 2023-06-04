@@ -88,7 +88,7 @@ colors.value = generateTeamColors(10); // numTeamsはチームの数
 <template>
 	<div v-if="isAuthenticated">
 		<LineChart :scores="scores" :colors="colors" />
-		<BarChart />
+		<BarChart :scores="scores" :colors="colors" />
 		<button @click="fetchScores">Get Score</button>
 		<button @click="signOut">Sign Out</button>
 	</div>
