@@ -6,7 +6,7 @@ resource "aws_dynamodb_table" "portal_scores" {
 
   attribute {
     name = "team_id"
-    type = "S"
+    type = "N"
   }
 
   attribute {

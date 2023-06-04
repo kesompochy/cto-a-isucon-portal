@@ -1,11 +1,11 @@
 type TeamScoreForGraph @aws_cognito_user_pools {
-  team_id: ID!
+  team_id: Int!
   score: Int!
   timestamp: Int!
 }
 
 type UpdateScoreResult @aws_api_key {
-  team_id: ID!
+  team_id: Int!
   pass: Boolean!
   score: Int!
   success: Int!
@@ -19,5 +19,13 @@ type Query {
 }
 
 type Mutation {
-  updateTeamScore(team_id: ID!, pass: Boolean!, score: Int!, success: Int!, fail: Int!, messages: [String!], timestamp: Int!): UpdateScoreResult @aws_api_key
+  updateTeamScore(
+    team_id: Int!
+    pass: Boolean!
+    score: Int!
+    success: Int!
+    fail: Int!
+    messages: [String!]
+    timestamp: Int!
+  ): UpdateScoreResult @aws_api_key
 }
