@@ -1,0 +1,382 @@
+[
+    {
+        "team_id": 0,
+        "score": 20,
+        "timestamp": 1685865780
+    },
+    {
+        "team_id": 0,
+        "score": 438,
+        "timestamp": 1685866838
+    },
+    {
+        "team_id": 0,
+        "score": 642,
+        "timestamp": 1685868741
+    },
+    {
+        "team_id": 0,
+        "score": 759,
+        "timestamp": 1685870048
+    },
+    {
+        "team_id": 0,
+        "score": 1008,
+        "timestamp": 1685871227
+    },
+    {
+        "team_id": 0,
+        "score": 1420,
+        "timestamp": 1685873193
+    },
+    {
+        "team_id": 0,
+        "score": 1714,
+        "timestamp": 1685873582
+    },
+    {
+        "team_id": 0,
+        "score": 1814,
+        "timestamp": 1685875412
+    },
+    {
+        "team_id": 1,
+        "score": 247,
+        "timestamp": 1685865780
+    },
+    {
+        "team_id": 1,
+        "score": 587,
+        "timestamp": 1685868699
+    },
+    {
+        "team_id": 1,
+        "score": 648,
+        "timestamp": 1685868701
+    },
+    {
+        "team_id": 1,
+        "score": 773,
+        "timestamp": 1685870906
+    },
+    {
+        "team_id": 1,
+        "score": 1221,
+        "timestamp": 1685871352
+    },
+    {
+        "team_id": 1,
+        "score": 1572,
+        "timestamp": 1685873546
+    },
+    {
+        "team_id": 1,
+        "score": 1957,
+        "timestamp": 1685874720
+    },
+    {
+        "team_id": 1,
+        "score": 2016,
+        "timestamp": 1685875302
+    },
+    {
+        "team_id": 1,
+        "score": 2383,
+        "timestamp": 1685875310
+    },
+    {
+        "team_id": 2,
+        "score": 169,
+        "timestamp": 1685865780
+    },
+    {
+        "team_id": 2,
+        "score": 615,
+        "timestamp": 1685866085
+    },
+    {
+        "team_id": 2,
+        "score": 674,
+        "timestamp": 1685867574
+    },
+    {
+        "team_id": 2,
+        "score": 1037,
+        "timestamp": 1685868823
+    },
+    {
+        "team_id": 2,
+        "score": 1444,
+        "timestamp": 1685869681
+    },
+    {
+        "team_id": 2,
+        "score": 1789,
+        "timestamp": 1685872648
+    },
+    {
+        "team_id": 2,
+        "score": 2195,
+        "timestamp": 1685874095
+    },
+    {
+        "team_id": 2,
+        "score": 2470,
+        "timestamp": 1685876370
+    },
+    {
+        "team_id": 3,
+        "score": 127,
+        "timestamp": 1685865780
+    },
+    {
+        "team_id": 3,
+        "score": 266,
+        "timestamp": 1685867757
+    },
+    {
+        "team_id": 3,
+        "score": 375,
+        "timestamp": 1685869821
+    },
+    {
+        "team_id": 3,
+        "score": 872,
+        "timestamp": 1685870075
+    },
+    {
+        "team_id": 3,
+        "score": 1018,
+        "timestamp": 1685870609
+    },
+    {
+        "team_id": 3,
+        "score": 1312,
+        "timestamp": 1685872739
+    },
+    {
+        "team_id": 3,
+        "score": 1441,
+        "timestamp": 1685874125
+    },
+    {
+        "team_id": 3,
+        "score": 1620,
+        "timestamp": 1685875849
+    },
+    {
+        "team_id": 4,
+        "score": 153,
+        "timestamp": 1685865780
+    },
+    {
+        "team_id": 4,
+        "score": 417,
+        "timestamp": 1685868031
+    },
+    {
+        "team_id": 4,
+        "score": 553,
+        "timestamp": 1685870966
+    },
+    {
+        "team_id": 4,
+        "score": 868,
+        "timestamp": 1685872704
+    },
+    {
+        "team_id": 4,
+        "score": 1255,
+        "timestamp": 1685875495
+    },
+    {
+        "team_id": 4,
+        "score": 1387,
+        "timestamp": 1685875585
+    },
+    {
+        "team_id": 5,
+        "score": 389,
+        "timestamp": 1685865780
+    },
+    {
+        "team_id": 5,
+        "score": 705,
+        "timestamp": 1685868512
+    },
+    {
+        "team_id": 5,
+        "score": 1017,
+        "timestamp": 1685869572
+    },
+    {
+        "team_id": 5,
+        "score": 1353,
+        "timestamp": 1685869623
+    },
+    {
+        "team_id": 5,
+        "score": 1625,
+        "timestamp": 1685869932
+    },
+    {
+        "team_id": 5,
+        "score": 1765,
+        "timestamp": 1685871024
+    },
+    {
+        "team_id": 5,
+        "score": 1916,
+        "timestamp": 1685871414
+    },
+    {
+        "team_id": 5,
+        "score": 1944,
+        "timestamp": 1685872742
+    },
+    {
+        "team_id": 5,
+        "score": 1990,
+        "timestamp": 1685875194
+    },
+    {
+        "team_id": 5,
+        "score": 2306,
+        "timestamp": 1685875742
+    },
+    {
+        "team_id": 6,
+        "score": 496,
+        "timestamp": 1685865780
+    },
+    {
+        "team_id": 6,
+        "score": 828,
+        "timestamp": 1685867755
+    },
+    {
+        "team_id": 6,
+        "score": 1022,
+        "timestamp": 1685869832
+    },
+    {
+        "team_id": 6,
+        "score": 1328,
+        "timestamp": 1685872692
+    },
+    {
+        "team_id": 6,
+        "score": 1366,
+        "timestamp": 1685874355
+    },
+    {
+        "team_id": 6,
+        "score": 1837,
+        "timestamp": 1685875387
+    },
+    {
+        "team_id": 7,
+        "score": 60,
+        "timestamp": 1685865780
+    },
+    {
+        "team_id": 7,
+        "score": 326,
+        "timestamp": 1685866730
+    },
+    {
+        "team_id": 7,
+        "score": 785,
+        "timestamp": 1685869002
+    },
+    {
+        "team_id": 7,
+        "score": 854,
+        "timestamp": 1685871920
+    },
+    {
+        "team_id": 7,
+        "score": 1137,
+        "timestamp": 1685873602
+    },
+    {
+        "team_id": 7,
+        "score": 1487,
+        "timestamp": 1685875248
+    },
+    {
+        "team_id": 8,
+        "score": 482,
+        "timestamp": 1685865780
+    },
+    {
+        "team_id": 8,
+        "score": 645,
+        "timestamp": 1685868432
+    },
+    {
+        "team_id": 8,
+        "score": 1069,
+        "timestamp": 1685868954
+    },
+    {
+        "team_id": 8,
+        "score": 1207,
+        "timestamp": 1685870568
+    },
+    {
+        "team_id": 8,
+        "score": 1651,
+        "timestamp": 1685871402
+    },
+    {
+        "team_id": 8,
+        "score": 2053,
+        "timestamp": 1685874179
+    },
+    {
+        "team_id": 8,
+        "score": 2103,
+        "timestamp": 1685875063
+    },
+    {
+        "team_id": 8,
+        "score": 2233,
+        "timestamp": 1685876059
+    },
+    {
+        "team_id": 9,
+        "score": 223,
+        "timestamp": 1685865780
+    },
+    {
+        "team_id": 9,
+        "score": 410,
+        "timestamp": 1685867131
+    },
+    {
+        "team_id": 9,
+        "score": 605,
+        "timestamp": 1685868882
+    },
+    {
+        "team_id": 9,
+        "score": 939,
+        "timestamp": 1685870063
+    },
+    {
+        "team_id": 9,
+        "score": 1343,
+        "timestamp": 1685873035
+    },
+    {
+        "team_id": 9,
+        "score": 1618,
+        "timestamp": 1685873873
+    },
+    {
+        "team_id": 9,
+        "score": 2027,
+        "timestamp": 1685875813
+    }
+]

@@ -11,7 +11,7 @@ aws dynamodb wait table-not-exists --table-name $TABLE_NAME --region ap-northeas
 
 # Create the table
 aws dynamodb create-table --table-name $TABLE_NAME \
-  --attribute-definitions AttributeName=team_id,AttributeType=S AttributeName=timestamp,AttributeType=N \
+  --attribute-definitions AttributeName=team_id,AttributeType=N AttributeName=timestamp,AttributeType=N \
   --key-schema AttributeName=team_id,KeyType=HASH AttributeName=timestamp,KeyType=RANGE \
   --billing-mode PAY_PER_REQUEST --region ap-northeast-1
 
@@ -25,17 +25,17 @@ if [ -z "${TEAM_COUNT}" ]; then
 fi
 
 # Insert initial scores for each team
-for i in $(seq 1 $TEAM_COUNT)
+for i in $(seq 0 $((TEAM_COUNT-1)))
 do
   aws dynamodb put-item \
     --table-name portal_scores \
     --item '{
-        "team_id": {"S": "'"$i"'"},
+        "team_id": {"N": "'"$i"'"},
         "score": {"N": "0"},
         "pass": {"BOOL": false},
         "success": {"N": "0"},
         "fail": {"N": "0"},
-        "timestamp": {"N": "'$(date +%s)'"},
+        "timestamp": {"N": "'$(date -u -d '+9 hour' +%s)'"},
         "messages": {"L": []}
     }' \
     --region ap-northeast-1
