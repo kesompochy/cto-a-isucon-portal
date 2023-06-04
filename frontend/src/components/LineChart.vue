@@ -105,7 +105,7 @@ const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo) => {
 		ctx.lineTo(screenSize.width - padding.right, y);
 		ctx.stroke();
 
-		ctx.fillText(score.toString(), padding.left / 2, y);
+		ctx.fillText(score.toString(), 0, y);
 	}
 
 	// Draw grid and labels for timestamps.
@@ -130,7 +130,9 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 	ctx.scale(1 / resolution.value.width, 1 / resolution.value.height);
 
 	// Clear canvas.
-	ctx.clearRect(0, 0, props.screenSize.width, props.screenSize.height);
+	ctx.clearRect(0, 0, screenSize.width, screenSize.height);
+	ctx.fillStyle = 'rgba(230, 230, 230, 0.5)';
+	ctx.fillRect(0, 0, screenSize.width, screenSize.height);
 
 	scores.sort((a, b) => a.timestamp - b.timestamp);
 
