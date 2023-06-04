@@ -12,7 +12,8 @@ export default defineConfig({
     AutoImport({
       imports: ['vitest'],
       dts: true
-    })],
+    }),
+  ],
   resolve: {
     alias: [
       {
@@ -22,3 +23,4 @@ export default defineConfig({
     ]
   },
 })
+

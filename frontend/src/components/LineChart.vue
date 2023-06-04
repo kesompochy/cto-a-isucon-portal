@@ -1,37 +1,201 @@
 <script lang="ts" setup>
-import { nextTick, onMounted, ref } from 'vue'
+import { onMounted, ref, nextTick, watch } from 'vue';
+import { Score } from '../interfaces';
 
-interface Score {
-    timestamp: number
-    teamId: number
-    score: number
-}
 interface Props {
-    scores: Score[]
+	scores: Score[];
+	colors: string[];
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const canvas = ref<HTMLCanvasElement | null>(null)
+const padding = {
+	top: 20,
+	right: 20,
+	bottom: 50, // increased for labels
+	left: 70, // increased for labels
+};
 
-onMounted(async ()=>{
-    await nextTick()
-    const ctx = canvas?.value?.getContext('2d')
-    if (!ctx) {
-        console.error('canvas要素が存在しません')
-        return
-    } 
-    props.scores.map(score => {
-        console.log(score.score)
-    })
+watch(
+	() => props.scores,
+	() => {
+		if (!ctxRef.value) {
+			console.error('canvas要素が存在しません');
+			return;
+		}
+		render(ctxRef.value, props.scores, props.colors);
+	},
+);
 
-    ctx.fillRect(0, 0, 10,10)
-})
+const canvasRef = ref<HTMLCanvasElement | null>(null);
+const ctxRef = ref<CanvasRenderingContext2D | null | undefined>(null);
+
+onMounted(async () => {
+	await nextTick();
+	if (!canvasRef.value) {
+		console.error('canvas要素が存在しません');
+		return;
+	}
+	resizeCanvas(canvasRef.value);
+	ctxRef.value = canvasRef?.value?.getContext('2d');
+	if (!ctxRef.value) {
+		console.error('canvas要素が存在しません');
+		return;
+	}
+	render(ctxRef.value, props.scores, props.colors);
+});
+
+const resizeCanvas = (canvas: HTMLCanvasElement) => {
+	canvas.width = canvas.clientWidth * window.devicePixelRatio;
+	canvas.height = canvas.clientHeight * window.devicePixelRatio;
+};
+
+const formatTimeAsHHMM = (timestamp: number) => {
+	const date = new Date(timestamp * 1000);
+	const hours = String(date.getHours()).padStart(2, '0');
+	const minutes = String(date.getMinutes()).padStart(2, '0');
+
+	return `${hours}:${minutes}`;
+};
+
+interface GridInfo {
+	minScore: number;
+	maxScore: number;
+	minTimestamp: number;
+	maxTimestamp: number;
+	scaleX: (timestamp: number) => number;
+	scaleY: (score: number) => number;
+}
+
+const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo) => {
+	const { maxScore, minTimestamp, maxTimestamp, scaleX, scaleY } = scores;
+	// Define grid steps for scores and timestamps.
+	const scoreStepMajor = maxScore <= 1000 ? 100 : 1000;
+	const timestampStepMajor = 60 * 60; // 1 hour
+	const timestampStepMinor = 10 * 60; // 10 minutes
+
+	ctx.strokeStyle = 'grey';
+	ctx.fillStyle = 'black';
+	ctx.textBaseline = 'middle';
+	for (let score = 0; score <= maxScore; score += scoreStepMajor) {
+		const y = scaleY(score);
+		ctx.beginPath();
+		ctx.moveTo(padding.left, y);
+		ctx.lineTo(ctx.canvas.width - padding.right, y);
+		ctx.stroke();
+
+		ctx.fillText(score.toString(), padding.left / 2, y);
+	}
+
+	// Draw grid and labels for timestamps.
+	ctx.textAlign = 'center';
+	for (let timestamp = minTimestamp; timestamp <= maxTimestamp; timestamp += timestampStepMinor) {
+		const x = scaleX(timestamp);
+		if ((timestamp - minTimestamp) % timestampStepMajor === 0) {
+			ctx.fillText(formatTimeAsHHMM(timestamp), x, ctx.canvas.height - padding.bottom / 2);
+		}
+	}
+};
+
+const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]) => {
+	console.log('start rendering');
+	// Clear canvas.
+	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+	scores.sort((a, b) => a.timestamp - b.timestamp);
+
+	const minScore = Math.min(...scores.map((score) => score.score));
+	const maxScore = Math.max(...scores.map((score) => score.score));
+	const minTimestamp = scores[0].timestamp;
+	const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+
+	const scaleX = (timestamp: number) =>
+		padding.left +
+		((timestamp - minTimestamp) / (currentTimestamp - minTimestamp)) *
+			(ctx.canvas.width - padding.left - padding.right);
+	const scaleY = (score: number) =>
+		padding.top +
+		(ctx.canvas.height - padding.top - padding.bottom) -
+		((score - minScore) / (maxScore - minScore)) *
+			(ctx.canvas.height - padding.top - padding.bottom);
+	drawGrids(ctx, {
+		minScore: minScore,
+		maxScore: maxScore,
+		minTimestamp: minTimestamp,
+		maxTimestamp: currentTimestamp,
+		scaleX: scaleX,
+		scaleY: scaleY,
+	});
+
+	// Group scores by team.
+	const scoresByTeam = scores.reduce((acc, score) => {
+		acc[score.team_id] = acc[score.team_id] || [];
+		acc[score.team_id].push(score);
+		return acc;
+	}, {} as Record<number, Score[]>);
+
+	Object.keys(scoresByTeam).forEach((teamIdStr) => {
+		const teamId = Number(teamIdStr);
+		// Find the latest score for the team.
+		const latestScore = scoresByTeam[teamId].reduce((latest, current) => {
+			return current.timestamp > latest.timestamp ? current : latest;
+		});
+		// Create a new score with the current timestamp and the latest score.
+		const currentScore = {
+			team_id: teamId,
+			score: latestScore.score,
+			timestamp: currentTimestamp,
+		};
+		scoresByTeam[teamId].push(currentScore);
+	});
+	// Draw lines for each team.
+	Object.keys(scoresByTeam).forEach((teamIdStr) => {
+		const teamId = Number(teamIdStr);
+		const teamScores = scoresByTeam[teamId];
+		ctx.strokeStyle = colors[teamId];
+		ctx.beginPath();
+		ctx.moveTo(scaleX(teamScores[0].timestamp), scaleY(teamScores[0].score));
+		teamScores.slice(1).forEach((score) => {
+			ctx.lineTo(scaleX(score.timestamp), scaleY(score.score));
+		});
+		ctx.stroke();
+	});
+};
 </script>
 
 <template>
-    <canvas ref="canvas"></canvas>
+	<legend>スコア経過</legend>
+	<canvas ref="canvasRef"></canvas>
+	<div class="legend">
+		<div v-for="(color, index) in colors" :key="index" class="legend-item">
+			<span class="legend-color" :style="{ background: color }"></span>
+			<span class="legend-label">チーム {{ index + 1 }}</span>
+		</div>
+	</div>
 </template>
 
-<style lang="sass" scoped>
+<style lang="scss" scoped>
+canvas {
+	//border: 1px solid #000;
+	width: 400px;
+	height: 300px;
+}
+.legend {
+	display: flex;
+	flex-wrap: wrap;
+	margin-top: 10px;
+}
+
+.legend-item {
+	display: flex;
+	align-items: center;
+	margin-right: 10px;
+	margin-bottom: 10px;
+}
+
+.legend-color {
+	width: 15px;
+	height: 15px;
+	margin-right: 5px;
+}
 </style>
