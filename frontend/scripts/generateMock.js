@@ -5,18 +5,24 @@ const MS_TO_SEC = 1e3;
 
 // モックデータを生成するための関数
 const generateMockData = (sinceHour, teamCount) => {
-	// 時間を調整するための定数（3時間を秒単位で表現）
-	const THREE_HOURS_IN_SEC = sinceHour * 60 * 60;
+	const HOUR_IN_SEC = sinceHour * 60 * 60;
 
 	const currentTimeSec = Math.floor(Date.now() / MS_TO_SEC);
-	const threeHoursAgoTimestamp = currentTimeSec - THREE_HOURS_IN_SEC;
+	const hoursAgoTimestamp = currentTimeSec - HOUR_IN_SEC;
 
 	const scores = [];
 
 	for (let i = 0; i < teamCount; i++) {
+		// Assign initial score of 0 to each team at hoursAgoTimestamp
+		scores.push({
+			team_id: i,
+			score: 0,
+			timestamp: hoursAgoTimestamp,
+		});
+
 		let score = 0;
 		for (
-			let timestamp = threeHoursAgoTimestamp;
+			let timestamp = (hoursAgoTimestamp + Math.random() * 3000) | 0;
 			timestamp <= currentTimeSec;
 			timestamp += (Math.random() * 3000) | 0
 		) {
