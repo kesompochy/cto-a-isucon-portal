@@ -86,18 +86,23 @@ interface GridInfo {
 	scaleY: (score: number) => number;
 }
 
-const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo) => {
+const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo, currentTimestamp: number) => {
 	const { maxScore, minTimestamp, maxTimestamp, scaleX, scaleY } = scores;
+	const timestampLabelWidth = ctx.measureText(formatTimeAsHHMM(currentTimestamp)).width;
+	const screenSize = props.screenSize;
+
 	// Define grid steps for scores and timestamps.
 	const scoreStepMajor = maxScore <= 1000 ? 100 : 1000;
-	const timestampStepMajor = 60 * 60; // 1 hour
-	const timestampStepMinor = 10 * 60; // 10 minutes
-	const screenSize = props.screenSize;
+
+	// Calculate the desired timestamp interval.
+	const totalHours = (maxTimestamp - minTimestamp) / 3600; // convert to hours
+	const timestampInterval = Math.ceil(totalHours / 8) * 3600; // interval in seconds
 
 	ctx.strokeStyle = 'grey';
 	ctx.fillStyle = 'black';
 	ctx.textBaseline = 'middle';
 	ctx.font = `${padding.bottom / 2}px sans-serif`;
+
 	for (let score = 0; score <= maxScore; score += scoreStepMajor) {
 		const y = scaleY(score);
 		ctx.beginPath();
@@ -111,9 +116,12 @@ const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo) => {
 	// Draw grid and labels for timestamps.
 	ctx.textAlign = 'center';
 	ctx.font = `${padding.bottom / 2}px sans-serif`;
-	for (let timestamp = minTimestamp; timestamp <= maxTimestamp; timestamp += timestampStepMinor) {
+
+	for (let timestamp = minTimestamp; timestamp <= maxTimestamp; timestamp += timestampInterval) {
 		const x = scaleX(timestamp);
-		if ((timestamp - minTimestamp) % timestampStepMajor === 0) {
+
+		// if x (the label position) is within the visible range
+		if (x >= padding.left && x <= screenSize.width - padding.right - timestampLabelWidth / 2) {
 			ctx.fillText(formatTimeAsHHMM(timestamp), x, screenSize.height - padding.bottom / 2);
 		}
 	}
@@ -136,23 +144,29 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 
 	scores.sort((a, b) => a.timestamp - b.timestamp);
 
+	const timestampLabelWidth = ctx.measureText(formatTimeAsHHMM(currentTimestamp)).width;
+
 	const scaleX = (timestamp: number) =>
 		padding.left +
 		((timestamp - minTimestamp) / (currentTimestamp - minTimestamp)) *
-			(screenSize.width - padding.left - padding.right);
+			(screenSize.width - padding.left - (padding.right + timestampLabelWidth / 2));
 	const scaleY = (score: number) =>
 		padding.top +
 		(screenSize.height - padding.top - padding.bottom) -
 		((score - minScore) / (maxScore - minScore)) *
 			(screenSize.height - padding.top - padding.bottom);
-	drawGrids(ctx, {
-		minScore: minScore,
-		maxScore: maxScore,
-		minTimestamp: minTimestamp,
-		maxTimestamp: currentTimestamp,
-		scaleX: scaleX,
-		scaleY: scaleY,
-	});
+	drawGrids(
+		ctx,
+		{
+			minScore: minScore,
+			maxScore: maxScore,
+			minTimestamp: minTimestamp,
+			maxTimestamp: currentTimestamp,
+			scaleX: scaleX,
+			scaleY: scaleY,
+		},
+		currentTimestamp,
+	);
 
 	// Group scores by team.
 	const scoresByTeam = scores.reduce((acc, score) => {
