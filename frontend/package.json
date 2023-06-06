@@ -8,7 +8,7 @@
 		"build": "vue-tsc && vite build",
 		"preview": "vite preview",
 		"test": "vitest",
-		"generateMock": "node ./scripts/generateMock.js src/mocks/scores.json 10"
+		"generateMock": "node ./scripts/generateMock.js"
 	},
 	"dependencies": {
 		"@aws-amplify/cli": "^12.0.3",
