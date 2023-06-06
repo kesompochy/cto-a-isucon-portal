@@ -53,7 +53,7 @@ const sortScores = (teamMaxScore: number[]) => {
 const generateBarWidth = (score: number) => {
 	const maxScore = Math.max(...maxScores.value);
 	const barWidth = (score / maxScore) * 100;
-	return `${barWidth}px`;
+	return `${barWidth}%`;
 };
 </script>
 
@@ -91,7 +91,7 @@ const generateBarWidth = (score: number) => {
 }
 
 .bar-wrapper {
-	width: 200px;
+	width: 100%;
 	height: 20px;
 	background-color: rgba(0, 0, 0, 0);
 	border-radius: 4px;
@@ -104,6 +104,7 @@ const generateBarWidth = (score: number) => {
 
 .bar-info {
 	margin-left: 8px;
+	white-space: nowrap;
 }
 
 .score {

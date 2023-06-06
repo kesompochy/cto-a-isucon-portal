@@ -9,6 +9,7 @@ import { Score } from './interfaces';
 //import '@aws-amplify/ui-vue/styles.css'
 import mockScore from './mocks/scores.json';
 
+const isDevelopment = ref(process.env.NODE_ENV === 'development');
 const isAuthenticated = ref(false);
 
 const scores = ref<Score[]>([]);
@@ -86,10 +87,10 @@ colors.value = generateTeamColors(10); // numTeamsはチームの数
 </script>
 
 <template>
-	<div v-if="isAuthenticated">
+	<div class="app-container" v-if="isAuthenticated">
 		<LineChart :scores="scores" :colors="colors" :screenSize="{ width: 800, height: 600 }" />
 		<BarChart :scores="scores" :colors="colors" />
-		<button @click="fetchScores">Get Score</button>
+		<button v-if="!isDevelopment" @click="fetchScores">Get Score</button>
 		<button @click="signOut">Sign Out</button>
 	</div>
 	<Authenticator
@@ -105,4 +106,8 @@ colors.value = generateTeamColors(10); // numTeamsはチームの数
 	</Authenticator>
 </template>
 
-<style scoped></style>
+<style scoped>
+.app-container {
+	width: 600px;
+}
+</style>
