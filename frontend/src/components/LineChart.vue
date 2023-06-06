@@ -144,7 +144,7 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 		padding.top +
 		(screenSize.height - padding.top - padding.bottom) -
 		((score - minScore) / (maxScore - minScore)) *
-			(ctx.canvas.height - padding.top - padding.bottom);
+			(screenSize.height - padding.top - padding.bottom);
 	drawGrids(ctx, {
 		minScore: minScore,
 		maxScore: maxScore,
