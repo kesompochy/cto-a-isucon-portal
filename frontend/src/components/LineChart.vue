@@ -6,6 +6,8 @@ interface Props {
 	scores: Score[];
 	colors: string[];
 	screenSize: { width: number; height: number };
+	teamStates: boolean[];
+	clickTeamLegend: Function;
 }
 
 const displayResolution = window.devicePixelRatio || 1;
@@ -31,6 +33,18 @@ watch(
 		}
 		render(ctxRef.value, props.scores, props.colors);
 	},
+	{ deep: true },
+);
+watch(
+	() => props.teamStates,
+	() => {
+		if (!ctxRef.value) {
+			console.error('canvas要素が存在しません');
+			return;
+		}
+		render(ctxRef.value, props.scores, props.colors);
+	},
+	{ deep: true },
 );
 
 onMounted(async () => {
@@ -46,6 +60,7 @@ onMounted(async () => {
 		console.error('canvas要素が存在しません');
 		return;
 	}
+	ctxRef.value.scale(1 / resolution.value.width, 1 / resolution.value.height);
 	render(ctxRef.value, props.scores, props.colors);
 });
 
@@ -87,22 +102,39 @@ interface GridInfo {
 }
 
 const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo, currentTimestamp: number) => {
-	const { maxScore, minTimestamp, maxTimestamp, scaleX, scaleY } = scores;
+	const { maxScore, minTimestamp, scaleX, scaleY } = scores;
 	const timestampLabelWidth = ctx.measureText(formatTimeAsHHMM(currentTimestamp)).width;
 	const screenSize = props.screenSize;
 
-	// Define grid steps for scores and timestamps.
-	const scoreStepMajor = maxScore <= 1000 ? 100 : 1000;
+	// Determine the optimal step size for the scores
+	let scoreStepMajor = 1;
+	let multiplier = 1;
 
-	// Calculate the desired timestamp interval.
-	const totalHours = (maxTimestamp - minTimestamp) / 3600; // convert to hours
-	const timestampInterval = Math.ceil(totalHours / 8) * 3600; // interval in seconds
+	if (maxScore > 0) {
+		while (maxScore / scoreStepMajor > 10) {
+			if (multiplier === 1) {
+				multiplier = 2;
+			} else if (multiplier === 2) {
+				multiplier = 5;
+			} else {
+				multiplier = 1;
+				scoreStepMajor *= 10;
+			}
+			scoreStepMajor = (scoreStepMajor / (multiplier === 1 ? 5 : 2)) * multiplier;
+		}
+	}
+
+	// Calculate the desired timestamp interval
+	const totalHours = (currentTimestamp - minTimestamp) / 3600; // convert to hours
+	let timestampInterval = Math.ceil(totalHours / 8) * 3600; // interval in seconds
+	if (timestampInterval < 3600) timestampInterval = 3600; // at least one hour
 
 	ctx.strokeStyle = 'grey';
 	ctx.fillStyle = 'black';
 	ctx.textBaseline = 'middle';
 	ctx.font = `${padding.bottom / 2}px sans-serif`;
 
+	// Draw grid and labels for scores
 	for (let score = 0; score <= maxScore; score += scoreStepMajor) {
 		const y = scaleY(score);
 		ctx.beginPath();
@@ -110,19 +142,32 @@ const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo, currentTimes
 		ctx.lineTo(screenSize.width - padding.right, y);
 		ctx.stroke();
 
-		ctx.fillText(score.toString(), 0, y);
+		const scoreLabel = Math.round(score).toString(); // convert score to integer
+		ctx.fillText(scoreLabel, 0, y);
 	}
 
-	// Draw grid and labels for timestamps.
+	// Draw grid and labels for timestamps
 	ctx.textAlign = 'center';
 	ctx.font = `${padding.bottom / 2}px sans-serif`;
 
-	for (let timestamp = minTimestamp; timestamp <= maxTimestamp; timestamp += timestampInterval) {
+	for (
+		let timestamp = minTimestamp;
+		timestamp <= currentTimestamp;
+		timestamp += timestampInterval
+	) {
 		const x = scaleX(timestamp);
+		const label = formatTimeAsHHMM(timestamp);
+		const isCurrentTime = timestamp + timestampInterval > currentTimestamp;
+		const adjustedX = isCurrentTime
+			? screenSize.width - padding.right - timestampLabelWidth / 2
+			: x;
 
 		// if x (the label position) is within the visible range
-		if (x >= padding.left && x <= screenSize.width - padding.right - timestampLabelWidth / 2) {
-			ctx.fillText(formatTimeAsHHMM(timestamp), x, screenSize.height - padding.bottom / 2);
+		if (
+			adjustedX >= padding.left &&
+			adjustedX <= screenSize.width - padding.right - timestampLabelWidth / 2
+		) {
+			ctx.fillText(label, adjustedX, screenSize.height - padding.bottom / 2);
 		}
 	}
 };
@@ -134,8 +179,6 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 	const minTimestamp = scores[0].timestamp;
 	const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
 	const screenSize = props.screenSize;
-
-	ctx.scale(1 / resolution.value.width, 1 / resolution.value.height);
 
 	// Clear canvas.
 	ctx.clearRect(0, 0, screenSize.width, screenSize.height);
@@ -189,11 +232,21 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 		};
 		scoresByTeam[teamId].push(currentScore);
 	});
+
 	// Draw lines for each team.
 	Object.keys(scoresByTeam).forEach((teamIdStr) => {
 		const teamId = Number(teamIdStr);
 		const teamScores = scoresByTeam[teamId];
-		ctx.strokeStyle = colors[teamId];
+
+		if (!props.teamStates[teamId]) {
+			let r = parseInt(colors[teamId].slice(1, 3), 16);
+			let g = parseInt(colors[teamId].slice(3, 5), 16);
+			let b = parseInt(colors[teamId].slice(5, 7), 16);
+			let alpha = 0.1; // 80% 透明度
+			ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+		} else {
+			ctx.strokeStyle = colors[teamId];
+		}
 		ctx.beginPath();
 		ctx.moveTo(scaleX(teamScores[0].timestamp), scaleY(teamScores[0].score));
 		teamScores.slice(1).forEach((score) => {
@@ -208,7 +261,13 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 	<legend>スコア経過</legend>
 	<canvas ref="canvasRef"></canvas>
 	<div class="legend">
-		<div v-for="(color, index) in colors" :key="index" class="legend-item">
+		<div
+			v-for="(color, index) in colors"
+			:key="index"
+			class="legend-item"
+			:class="teamStates[index] ? 'focused' : 'unfocused'"
+			@click="clickTeamLegend(index)"
+		>
 			<span class="legend-color" :style="{ background: color }"></span>
 			<span class="legend-label">チーム {{ index }}</span>
 		</div>
@@ -217,7 +276,6 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 
 <style lang="scss" scoped>
 canvas {
-	//border: 1px solid #000;
 	width: 600px;
 	height: 450px;
 }
@@ -232,6 +290,18 @@ canvas {
 	align-items: center;
 	margin-right: 10px;
 	margin-bottom: 10px;
+	cursor: pointer;
+	&.focused {
+		opacity: 1;
+	}
+	&.unfocused {
+		opacity: 0.2;
+	}
+
+	//テキストを選択されないようにしたい
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Safari */
+	user-select: none;
 }
 
 .legend-color {

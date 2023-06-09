@@ -14,6 +14,7 @@ const isAuthenticated = ref(false);
 
 const scores = ref<Score[]>([]);
 const colors = ref<string[]>([]);
+const teamStates = ref<boolean[]>(Array(10).fill(true));
 
 if (process.env.NODE_ENV === 'development') {
 	scores.value = mockScore;
@@ -84,11 +85,41 @@ const generateTeamColors = (numTeams: number) => {
 };
 
 colors.value = generateTeamColors(10); // numTeamsはチームの数
+
+const onClickTeamLegend = (index: number) => {
+	console.log(teamStates.value);
+	// すべてのチームがtrueなら、クリックされたチームのみをtrueにする
+	if (teamStates.value.every((teamState) => teamState)) {
+		teamStates.value = Array(10).fill(false);
+		teamStates.value[index] = true;
+		return;
+	} else {
+		teamStates.value = Array(10).fill(true);
+		/*
+		// クリックされたチーム以外すべてfalseなら、すべてのチームをtrueにする
+		if (teamStates.value.every((teamState) => !teamState)) {
+			teamStates.value = Array(10).fill(true);
+			return;
+		} else if (teamStates.value[index]) {
+			teamStates.value[index] = false;
+			return;
+		} else {
+			teamStates.value[index] = true;
+			return;
+		}*/
+	}
+};
 </script>
 
 <template>
 	<div class="app-container" v-if="isAuthenticated">
-		<LineChart :scores="scores" :colors="colors" :screenSize="{ width: 800, height: 600 }" />
+		<LineChart
+			:scores="scores"
+			:colors="colors"
+			:screenSize="{ width: 800, height: 600 }"
+			:team-states="teamStates"
+			:click-team-legend="onClickTeamLegend"
+		/>
 		<BarChart :scores="scores" :colors="colors" />
 		<button v-if="!isDevelopment" @click="fetchScores">Get Score</button>
 		<button @click="signOut">Sign Out</button>
