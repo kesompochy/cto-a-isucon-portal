@@ -135,6 +135,7 @@ const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo, currentTimes
 	ctx.font = `${padding.bottom / 2}px sans-serif`;
 
 	// Draw grid and labels for scores
+	ctx.textAlign = 'left';
 	for (let score = 0; score <= maxScore; score += scoreStepMajor) {
 		const y = scaleY(score);
 		ctx.beginPath();
