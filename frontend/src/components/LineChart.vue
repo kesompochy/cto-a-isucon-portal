@@ -46,6 +46,18 @@ watch(
 	},
 	{ deep: true },
 );
+watch(
+	() => props.colors,
+	() => {
+		if (!ctxRef.value) {
+			console.error('canvas要素が存在しません');
+			return;
+		}
+		props.colors;
+		render(ctxRef.value, props.scores, props.colors);
+	},
+	{ deep: true },
+);
 
 onMounted(async () => {
 	await nextTick();
@@ -174,7 +186,8 @@ const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo, currentTimes
 };
 
 const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]) => {
-	console.log('start rendering');
+	console.log(`start rendering line chart with ${scores.length} scores`);
+	console.log('scores', scores);
 	const minScore = Math.min(...scores.map((score) => score.score));
 	const maxScore = Math.max(...scores.map((score) => score.score));
 	const minTimestamp = scores[0]?.timestamp || 0;
@@ -241,7 +254,7 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 
 		let alpha = props.teamStates[teamId] ? '100%' : '10%'; // 100% for focused and 10% for unfocused
 
-		let hslColor = colors[teamId];
+		let hslColor = colors[teamId] || 'hsl(0, 0%, 0%)';
 		// Convert the color to HSLA
 		let hslaColor = hslColor.slice(0, -1) + `, ${alpha})`.replace('hsl', 'hsla');
 

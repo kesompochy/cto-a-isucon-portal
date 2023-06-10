@@ -2,12 +2,11 @@
 import Authenticator from './components/Authenticator.vue';
 import LineChart from './components/LineChart.vue';
 import BarChart from './components/BarChart.vue';
-import { ref, onBeforeMount, onBeforeUnmount } from 'vue';
+import { ref, onBeforeMount, onBeforeUnmount, watch } from 'vue';
 import { API, Auth, graphqlOperation } from 'aws-amplify';
 import { getAllScores } from './graphql/queries/getAllScores';
 import { onNewScore } from './graphql/queries/onNewScore';
 import { Score } from './interfaces';
-//import '@aws-amplify/ui-vue/styles.css'
 import mockScore from './mocks/scores.json';
 import Observable from 'zen-observable-ts';
 
@@ -15,15 +14,32 @@ const isDevelopment = ref(process.env.NODE_ENV === 'development');
 const isAuthenticated = ref(false);
 
 const scores = ref<Score[]>([]);
+const teamNum = ref<number>(0);
 const colors = ref<string[]>([]);
-const teamStates = ref<boolean[]>(Array(10).fill(true));
+const teamStates = ref<boolean[]>(Array(teamNum.value).fill(true));
+
+watch(
+	() => scores.value,
+	(newScores: Score[]) => {
+		teamNum.value = calcTeamNumFromScores(newScores);
+		colors.value = generateColors(teamNum.value);
+	},
+	{ deep: true },
+);
+watch(
+	() => teamNum.value,
+	(newTeamNum: number) => {
+		teamStates.value = Array(newTeamNum).fill(true);
+	},
+	{ deep: true },
+);
 
 onBeforeMount(() => {
 	Auth.currentAuthenticatedUser({ bypassCache: true })
-		.then(() => {
+		.then(async () => {
 			isAuthenticated.value = true;
 			if (process.env.NODE_ENV !== 'development') {
-				fetchScores();
+				await fetchScores();
 
 				const subscription = subscribeToNewScores();
 				// コンポーネントがアンマウントされるときにサブスクリプションを解除する
@@ -39,24 +55,35 @@ onBeforeMount(() => {
 		});
 });
 
+const calcTeamNumFromScores = (scores: Score[]): number => {
+	// 異なるteam_idを追跡するためのSetを作成
+	const teamIds = new Set();
+
+	// 各スコアをループし、team_idをSetに追加
+	scores.forEach((score: Score) => {
+		teamIds.add(score.team_id);
+	});
+
+	console.log(`calculated teamId size is ${teamIds.size}, yo`);
+
+	// teamNumにSetのサイズ（異なるteam_idの数）を設定
+	return teamIds.size;
+};
+
 const fetchScores = async () => {
-	Auth.currentAuthenticatedUser({ bypassCache: true })
-		.then(async () => {
-			try {
-				const result = await API.graphql(graphqlOperation(getAllScores));
-				if ('data' in result) {
-					const fetchedScore = result.data.getAllScores;
-					console.log(fetchedScore);
-					scores.value = fetchedScore;
-				}
-				return 0;
-			} catch (e) {
-				console.error('Error fetching score', e);
-				isAuthenticated.value = false;
-				return 0;
-			}
-		})
-		.catch((err) => console.log(err));
+	await Auth.currentAuthenticatedUser({ bypassCache: true });
+	try {
+		const result = await API.graphql(graphqlOperation(getAllScores));
+		if ('data' in result) {
+			const fetchedScores = result.data.getAllScores;
+			scores.value = fetchedScores;
+		}
+		return 0;
+	} catch (e) {
+		console.error('Error fetching score', e);
+		isAuthenticated.value = false;
+		return 0;
+	}
 };
 
 const subscribeToNewScores = () => {
@@ -64,7 +91,6 @@ const subscribeToNewScores = () => {
 	const subscription = observable.subscribe({
 		next: (scoreData) => {
 			// 新しいスコアデータを処理します
-			console.log(scoreData);
 			if (
 				scoreData &&
 				scoreData.value &&
@@ -102,7 +128,8 @@ const signOut = async () => {
 	}
 };
 
-const generateTeamColors = (numTeams: number) => {
+const generateColors = (numTeams: number) => {
+	console.log(`generate colors from teamNum ${numTeams}`);
 	const colors = [];
 	for (let i = 0; i < numTeams; i++) {
 		// 色相 (Hue) を 0 から 360 で変化させる
@@ -114,10 +141,7 @@ const generateTeamColors = (numTeams: number) => {
 	return colors;
 };
 
-colors.value = generateTeamColors(10); // numTeamsはチームの数
-
 const onClickTeamLegend = (index: number) => {
-	console.log(teamStates.value);
 	// すべてのチームがtrueなら、クリックされたチームのみをtrueにする
 	if (teamStates.value.every((teamState) => teamState)) {
 		teamStates.value = Array(10).fill(false);

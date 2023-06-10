@@ -17,7 +17,6 @@ watch(
 	() => props.scores,
 	() => {
 		sortedScores.value = sortScores(calcTeamMaxScore(props.scores));
-		console.log(sortedScores.value);
 	},
 );
 
@@ -36,17 +35,10 @@ const calcTeamMaxScore = (scores: Score[]): number[] => {
 	return teamMaxScore;
 };
 const sortScores = (teamMaxScore: number[]) => {
-	const scores = [];
-	for (let team_id = 0; team_id < teamMaxScore.length; team_id++) {
-		if (teamMaxScore[team_id] !== undefined) {
-			const score = teamMaxScore[team_id];
-			scores.push({
-				team_id,
-				score,
-			});
-		}
-	}
-	return scores.sort((a, b) => b.score - a.score);
+	return teamMaxScore
+		.map((score, team_id) => ({ team_id, score }))
+		.filter((scoreObj) => scoreObj.score !== undefined)
+		.sort((a, b) => b.score - a.score);
 };
 
 const generateBarWidth = (score: number) => {
