@@ -2,12 +2,14 @@
 import Authenticator from './components/Authenticator.vue';
 import LineChart from './components/LineChart.vue';
 import BarChart from './components/BarChart.vue';
-import { ref, onBeforeMount, onMounted } from 'vue';
+import { ref, onBeforeMount, onBeforeUnmount } from 'vue';
 import { API, Auth, graphqlOperation } from 'aws-amplify';
 import { getAllScores } from './graphql/queries/getAllScores';
+import { onNewScore } from './graphql/queries/onNewScore';
 import { Score } from './interfaces';
 //import '@aws-amplify/ui-vue/styles.css'
 import mockScore from './mocks/scores.json';
+import Observable from 'zen-observable-ts';
 
 const isDevelopment = ref(process.env.NODE_ENV === 'development');
 const isAuthenticated = ref(false);
@@ -16,26 +18,25 @@ const scores = ref<Score[]>([]);
 const colors = ref<string[]>([]);
 const teamStates = ref<boolean[]>(Array(10).fill(true));
 
-if (process.env.NODE_ENV === 'development') {
-	scores.value = mockScore;
-}
-
 onBeforeMount(() => {
 	Auth.currentAuthenticatedUser({ bypassCache: true })
 		.then(() => {
 			isAuthenticated.value = true;
+			if (process.env.NODE_ENV !== 'development') {
+				fetchScores();
+
+				const subscription = subscribeToNewScores();
+				// コンポーネントがアンマウントされるときにサブスクリプションを解除する
+				onBeforeUnmount(() => {
+					unsubscribeFromNewScores(subscription);
+				});
+			} else {
+				scores.value = mockScore;
+			}
 		})
 		.catch(() => {
 			isAuthenticated.value = false;
 		});
-});
-
-onMounted(() => {
-	if (process.env.NODE_ENV !== 'development') {
-		if (isAuthenticated.value) {
-			fetchScores();
-		}
-	}
 });
 
 const fetchScores = async () => {
@@ -56,6 +57,40 @@ const fetchScores = async () => {
 			}
 		})
 		.catch((err) => console.log(err));
+};
+
+const subscribeToNewScores = () => {
+	const observable = API.graphql(graphqlOperation(onNewScore)) as Observable<any>;
+	const subscription = observable.subscribe({
+		next: (scoreData) => {
+			// 新しいスコアデータを処理します
+			console.log(scoreData);
+			if (
+				scoreData &&
+				scoreData.value &&
+				scoreData.value.data &&
+				scoreData.value.data.onNewScore
+			) {
+				const newScore = scoreData.value.data.onNewScore;
+				scores.value.push({
+					team_id: newScore.team_id,
+					score: newScore.score,
+					timestamp: newScore.timestamp,
+				});
+			}
+		},
+		error: (error) => {
+			console.error(error);
+		},
+	});
+	console.log('subscribe');
+	return subscription;
+};
+
+const unsubscribeFromNewScores = (subscription: any) => {
+	if (subscription) {
+		subscription.unsubscribe();
+	}
 };
 
 const signOut = async () => {
@@ -90,18 +125,6 @@ const onClickTeamLegend = (index: number) => {
 		return;
 	} else {
 		teamStates.value = Array(10).fill(true);
-		/*
-		// クリックされたチーム以外すべてfalseなら、すべてのチームをtrueにする
-		if (teamStates.value.every((teamState) => !teamState)) {
-			teamStates.value = Array(10).fill(true);
-			return;
-		} else if (teamStates.value[index]) {
-			teamStates.value[index] = false;
-			return;
-		} else {
-			teamStates.value[index] = true;
-			return;
-		}*/
 	}
 };
 </script>
@@ -116,7 +139,7 @@ const onClickTeamLegend = (index: number) => {
 			:click-team-legend="onClickTeamLegend"
 		/>
 		<BarChart :scores="scores" :colors="colors" />
-		<button v-if="!isDevelopment" @click="fetchScores">Get Score</button>
+		<button v-if="isDevelopment" @click="fetchScores">Get Score</button>
 		<button @click="signOut">Sign Out</button>
 	</div>
 	<Authenticator

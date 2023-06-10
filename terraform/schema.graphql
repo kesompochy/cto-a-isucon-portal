@@ -29,3 +29,9 @@ type Mutation {
     timestamp: Int!
   ): UpdateScoreResult @aws_api_key
 }
+
+type Subscription {
+  onNewScore: UpdateScoreResult
+    @aws_subscribe(mutations: ["updateTeamScore"])
+    @aws_cognito_user_pools
+}

@@ -177,7 +177,7 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 	console.log('start rendering');
 	const minScore = Math.min(...scores.map((score) => score.score));
 	const maxScore = Math.max(...scores.map((score) => score.score));
-	const minTimestamp = scores[0].timestamp;
+	const minTimestamp = scores[0]?.timestamp || 0;
 	const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
 	const screenSize = props.screenSize;
 
@@ -247,7 +247,7 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 
 		ctx.strokeStyle = hslaColor;
 		ctx.beginPath();
-		ctx.moveTo(scaleX(teamScores[0].timestamp), scaleY(teamScores[0].score));
+		ctx.moveTo(scaleX(teamScores[0]?.timestamp || 1), scaleY(teamScores[0]?.score || 1));
 		teamScores.slice(1).forEach((score) => {
 			ctx.lineTo(scaleX(score.timestamp), scaleY(score.score));
 		});
