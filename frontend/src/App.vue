@@ -67,19 +67,14 @@ const signOut = async () => {
 	}
 };
 
-const generateRandomColor = () => {
-	const letters = '0123456789ABCDEF';
-	let color = '#';
-	for (let i = 0; i < 6; i++) {
-		color += letters[Math.floor(Math.random() * 16)];
-	}
-	return color;
-};
-
 const generateTeamColors = (numTeams: number) => {
 	const colors = [];
 	for (let i = 0; i < numTeams; i++) {
-		colors.push(generateRandomColor());
+		// 色相 (Hue) を 0 から 360 で変化させる
+		const hue = Math.round((i / numTeams) * 360);
+		const saturation = 80; // 80%
+		const lightness = 60; // 60%
+		colors.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
 	}
 	return colors;
 };

@@ -239,15 +239,13 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 		const teamId = Number(teamIdStr);
 		const teamScores = scoresByTeam[teamId];
 
-		if (!props.teamStates[teamId]) {
-			let r = parseInt(colors[teamId].slice(1, 3), 16);
-			let g = parseInt(colors[teamId].slice(3, 5), 16);
-			let b = parseInt(colors[teamId].slice(5, 7), 16);
-			let alpha = 0.1; // 80% 透明度
-			ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-		} else {
-			ctx.strokeStyle = colors[teamId];
-		}
+		let alpha = props.teamStates[teamId] ? '100%' : '10%'; // 100% for focused and 10% for unfocused
+
+		let hslColor = colors[teamId];
+		// Convert the color to HSLA
+		let hslaColor = hslColor.slice(0, -1) + `, ${alpha})`.replace('hsl', 'hsla');
+
+		ctx.strokeStyle = hslaColor;
 		ctx.beginPath();
 		ctx.moveTo(scaleX(teamScores[0].timestamp), scaleY(teamScores[0].score));
 		teamScores.slice(1).forEach((score) => {
