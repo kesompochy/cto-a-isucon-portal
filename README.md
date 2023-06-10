@@ -17,7 +17,7 @@
 
 ```
 > curl -XPOST -H "Content-Type:application/json" -H "x-api-key:CREDENTIAL_API_KEY" -d '{
-  "query": "mutation { updateTeamScore(team_id: \"1\", pass: true, score: 10, success: 1, fail: 0, messages: [\"message1\"], timestamp: 1934567890) { team_id pass score success fail messages timestamp } }"
+  "query": "mutation { updateTeamScore(team_id: 1, pass: true, score: 10, success: 1, fail: 0, messages: [\"message1\"], timestamp: 1934567890) { team_id pass score success fail messages timestamp } }"
 }' 'https://APPSYNC_API_ENDPOINT/graphql'
 {"data":{"updateTeamScore":{"team_id":1,"pass":true,"score":10,"success":1,"fail":0,"messages":["message1"],"timestamp":1934567890}}}%
 ```
