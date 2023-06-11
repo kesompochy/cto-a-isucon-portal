@@ -24,8 +24,8 @@ if [ -z "${TEAM_COUNT}" ]; then
   exit 1
 fi
 
-# Get the current timestamp (only once)
-current_timestamp=$(date -u -d '+9 hour' +%s)
+# Get the current UNIX timestamp from WorldTimeAPI in UTC
+current_timestamp=$(curl -s 'http://worldtimeapi.org/api/timezone/Etc/UTC' | grep -oP '(?<="unixtime":)\d+')
 
 # Insert initial scores for each team
 for i in $(seq 0 $((TEAM_COUNT-1)))
