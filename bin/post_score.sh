@@ -14,7 +14,7 @@ if [ "$#" -ne 2 ]; then
 fi
 
 # 現在のUNIXタイムスタンプを取得
-TIMESTAMP=$(date +%s)
+TIMESTAMP=$(curl -s 'http://worldtimeapi.org/api/timezone/Etc/UTC' | grep -oP '(?<="unixtime":)\d+')
 
 # GraphQL クエリを実行
 curl -XPOST -H "Content-Type:application/json" -H "x-api-key:$API_KEY" -d "{
