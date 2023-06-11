@@ -24,6 +24,9 @@ if [ -z "${TEAM_COUNT}" ]; then
   exit 1
 fi
 
+# Get the current timestamp (only once)
+current_timestamp=$(date -u -d '+9 hour' +%s)
+
 # Insert initial scores for each team
 for i in $(seq 0 $((TEAM_COUNT-1)))
 do
@@ -35,7 +38,7 @@ do
         "pass": {"BOOL": false},
         "success": {"N": "0"},
         "fail": {"N": "0"},
-        "timestamp": {"N": "'$(date -u -d '+9 hour' +%s)'"},
+        "timestamp": {"N": "'"$current_timestamp"'"},
         "messages": {"L": []}
     }' \
     --region ap-northeast-1
