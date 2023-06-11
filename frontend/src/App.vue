@@ -35,7 +35,7 @@ watch(
 );
 
 onBeforeMount(() => {
-	if (process.env.NODE_ENV !== 'development') {
+	if (process.env.NODE_ENV == 'development') {
 		scores.value = mockScore;
 		isAuthenticated.value = true;
 	} else {
