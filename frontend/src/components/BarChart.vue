@@ -55,23 +55,32 @@ const generateBarWidth = (score: number) => {
 <template>
 	<legend>現在スコア</legend>
 	<div class="scoreboard">
-		<div class="bar" v-for="(score, index) in sortedScores" :key="index">
-			<div class="bar-wrapper">
-				<div
-					class="bar-fill"
-					:style="{
-						width: generateBarWidth(score.score),
-						backgroundColor: colors[score.team_id],
-					}"
-				></div>
+		<transition-group name="bar-animation" tag="div">
+			<div class="bar" v-for="score in sortedScores" :key="score.team_id">
+				<div class="bar-wrapper">
+					<div
+						class="bar-fill"
+						:style="{
+							width: generateBarWidth(score.score),
+							backgroundColor: colors[score.team_id],
+							transition: 'width 0.5s ease-out',
+						}"
+					></div>
+				</div>
+				<div class="bar-info">
+					<div class="score">{{ score.score }}</div>
+					<div class="team-id">チーム{{ score.team_id }}</div>
+				</div>
 			</div>
-			<div class="bar-info">
-				<div class="score">{{ score.score }}</div>
-				<div class="team-id">チーム{{ score.team_id }}</div>
-			</div>
-		</div>
+		</transition-group>
 	</div>
 </template>
+
+<style scoped>
+.bar-animation-move {
+	transition: transform 0.5s;
+}
+</style>
 
 <style scoped lang="scss">
 .scoreboard {
