@@ -18,7 +18,8 @@ watch(
 	() => {
 		maxScores.value = calcTeamMaxScore(props.scores);
 		sortedScores.value = sortScores(calcTeamMaxScore(props.scores));
-		console.log(`bar chart sorted scores is ${sortedScores.value}`);
+		console.log('bar chart sorted scores');
+		console.log('sorted value', sortedScores.value);
 	},
 	{ deep: true },
 );

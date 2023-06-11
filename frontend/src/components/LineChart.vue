@@ -2,6 +2,10 @@
 import { onMounted, ref, nextTick, watch, computed } from 'vue';
 import { Score } from '../interfaces';
 
+const unFocusedOpacity: string = '10%';
+const lineThickness = 3;
+const gridThickness = 1;
+
 interface Props {
 	scores: Score[];
 	colors: string[];
@@ -141,6 +145,7 @@ const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo, currentTimes
 	let timestampInterval = Math.ceil(totalHours / 8) * 3600; // interval in seconds
 	if (timestampInterval < 3600) timestampInterval = 3600; // at least one hour
 
+	ctx.lineWidth = gridThickness;
 	ctx.strokeStyle = 'grey';
 	ctx.fillStyle = 'black';
 	ctx.textBaseline = 'middle';
@@ -248,11 +253,12 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 	});
 
 	// Draw lines for each team.
+	ctx.lineWidth = lineThickness;
 	Object.keys(scoresByTeam).forEach((teamIdStr) => {
 		const teamId = Number(teamIdStr);
 		const teamScores = scoresByTeam[teamId];
 
-		let alpha = props.teamStates[teamId] ? '100%' : '10%'; // 100% for focused and 10% for unfocused
+		let alpha = props.teamStates[teamId] ? '100%' : unFocusedOpacity; // 100% for focused and 10% for unfocused
 
 		let hslColor = colors[teamId] || 'hsl(0, 0%, 0%)';
 		// Convert the color to HSLA
