@@ -160,7 +160,7 @@ const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo, currentTimes
 	}
 
 	// Calculate the desired timestamp interval
-	const desiredNumberOfLabels = 8;
+	const desiredNumberOfLabels = 7;
 	const totalSeconds = currentTimestamp - minTimestamp;
 	const approximateIntervalInSeconds = totalSeconds / desiredNumberOfLabels;
 
