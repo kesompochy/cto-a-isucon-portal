@@ -124,26 +124,21 @@ const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo, currentTimes
 
 	// Determine the optimal step size for the scores
 	let scoreStepMajor = 1;
-	let multiplier = 1;
 
 	if (maxScore > 0) {
-		while (maxScore / scoreStepMajor > 10) {
-			if (multiplier === 1) {
-				multiplier = 2;
-			} else if (multiplier === 2) {
-				multiplier = 5;
-			} else {
-				multiplier = 1;
-				scoreStepMajor *= 10;
-			}
-			scoreStepMajor = (scoreStepMajor / (multiplier === 1 ? 5 : 2)) * multiplier;
+		const maxNumberOfSteps = 10;
+		let exponent = Math.floor(Math.log10(maxScore / maxNumberOfSteps));
+		let magnitude = Math.pow(10, exponent);
+		let baseStep = maxScore / (maxNumberOfSteps * magnitude);
+
+		if (baseStep <= 2) {
+			scoreStepMajor = 2 * magnitude;
+		} else if (baseStep <= 5) {
+			scoreStepMajor = 5 * magnitude;
+		} else {
+			scoreStepMajor = 10 * magnitude;
 		}
 	}
-
-	// Calculate the desired timestamp interval
-	const totalHours = (currentTimestamp - minTimestamp) / 3600; // convert to hours
-	let timestampInterval = Math.ceil(totalHours / 8) * 3600; // interval in seconds
-	if (timestampInterval < 3600) timestampInterval = 3600; // at least one hour
 
 	ctx.lineWidth = gridThickness;
 	ctx.strokeStyle = 'grey';
@@ -164,29 +159,64 @@ const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo, currentTimes
 		ctx.fillText(scoreLabel, 0, y);
 	}
 
+	// Calculate the desired timestamp interval
+	const desiredNumberOfLabels = 8;
+	const totalSeconds = currentTimestamp - minTimestamp;
+	const approximateIntervalInSeconds = totalSeconds / desiredNumberOfLabels;
+
+	let timestampInterval;
+
+	if (approximateIntervalInSeconds <= 15 * 60) {
+		timestampInterval = 15 * 60; // 15 minutes
+	} else if (approximateIntervalInSeconds <= 30 * 60) {
+		timestampInterval = 30 * 60; // 30 minutes
+	} else if (approximateIntervalInSeconds <= 60 * 60) {
+		timestampInterval = 60 * 60; // 1 hour
+	} else if (approximateIntervalInSeconds <= 2 * 60 * 60) {
+		timestampInterval = 2 * 60 * 60; // 2 hours
+	} else if (approximateIntervalInSeconds <= 3 * 60 * 60) {
+		timestampInterval = 3 * 60 * 60; // 3 hours
+	} else {
+		timestampInterval = Math.ceil(approximateIntervalInSeconds / (60 * 60)) * 60 * 60; // round up to nearest hour
+	}
+
+	// Find the nearest rounded timestamp for minTimestamp
+	let startTimestamp = Math.ceil(minTimestamp / timestampInterval) * timestampInterval;
+
 	// Draw grid and labels for timestamps
 	ctx.textAlign = 'center';
 	ctx.font = `${padding.bottom / 2}px sans-serif`;
 
+	// Draw minTimestamp label at the left edge
+	const minLabel = formatTimeAsHHMM(minTimestamp);
+	ctx.fillText(minLabel, padding.left, screenSize.height - padding.bottom / 2);
+
+	// Draw grid and labels for timestamps between minTimestamp and currentTimestamp
+	let lastLabelPosition = scaleX(minTimestamp);
 	for (
-		let timestamp = minTimestamp;
+		let timestamp = startTimestamp;
 		timestamp <= currentTimestamp;
 		timestamp += timestampInterval
 	) {
 		const x = scaleX(timestamp);
 		const label = formatTimeAsHHMM(timestamp);
-		const isCurrentTime = timestamp + timestampInterval > currentTimestamp;
-		const adjustedX = isCurrentTime
-			? screenSize.width - padding.right - timestampLabelWidth / 2
-			: x;
 
-		// if x (the label position) is within the visible range
+		// Check if there's enough space between the labels
 		if (
-			adjustedX >= padding.left &&
-			adjustedX <= screenSize.width - padding.right - timestampLabelWidth / 2
+			x >= padding.left + timestampLabelWidth &&
+			x <= screenSize.width - padding.right - timestampLabelWidth
 		) {
-			ctx.fillText(label, adjustedX, screenSize.height - padding.bottom / 2);
+			lastLabelPosition = x;
+			ctx.fillText(label, x, screenSize.height - padding.bottom / 2);
 		}
+	}
+
+	// Draw the current timestamp label at the right edge,
+	// but only if it doesn't overlap with the previous label
+	const currentLabelPosition = screenSize.width - padding.right - timestampLabelWidth / 2;
+	if (currentLabelPosition - lastLabelPosition >= timestampLabelWidth) {
+		const currentLabel = formatTimeAsHHMM(currentTimestamp);
+		ctx.fillText(currentLabel, currentLabelPosition, screenSize.height - padding.bottom / 2);
 	}
 };
 
