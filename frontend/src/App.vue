@@ -35,10 +35,13 @@ watch(
 );
 
 onBeforeMount(() => {
-	Auth.currentAuthenticatedUser({ bypassCache: true })
-		.then(async () => {
-			isAuthenticated.value = true;
-			if (process.env.NODE_ENV !== 'development') {
+	if (process.env.NODE_ENV !== 'development') {
+		scores.value = mockScore;
+		isAuthenticated.value = true;
+	} else {
+		Auth.currentAuthenticatedUser({ bypassCache: true })
+			.then(async () => {
+				isAuthenticated.value = true;
 				await fetchScores();
 
 				const subscription = subscribeToNewScores();
@@ -46,13 +49,11 @@ onBeforeMount(() => {
 				onBeforeUnmount(() => {
 					unsubscribeFromNewScores(subscription);
 				});
-			} else {
-				scores.value = mockScore;
-			}
-		})
-		.catch(() => {
-			isAuthenticated.value = false;
-		});
+			})
+			.catch(() => {
+				isAuthenticated.value = false;
+			});
+	}
 });
 
 const calcTeamNumFromScores = (scores: Score[]): number => {
