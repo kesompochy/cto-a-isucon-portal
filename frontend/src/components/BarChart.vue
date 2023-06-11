@@ -16,8 +16,11 @@ const sortedScores = ref<{ score: number; team_id: number }[]>([]);
 watch(
 	() => props.scores,
 	() => {
+		maxScores.value = calcTeamMaxScore(props.scores);
 		sortedScores.value = sortScores(calcTeamMaxScore(props.scores));
+		console.log(`bar chart sorted scores is ${sortedScores.value}`);
 	},
+	{ deep: true },
 );
 
 onBeforeMount(() => {

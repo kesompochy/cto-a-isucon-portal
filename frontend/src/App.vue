@@ -22,7 +22,6 @@ watch(
 	() => scores.value,
 	(newScores: Score[]) => {
 		teamNum.value = calcTeamNumFromScores(newScores);
-		colors.value = generateColors(teamNum.value);
 	},
 	{ deep: true },
 );
@@ -30,6 +29,7 @@ watch(
 	() => teamNum.value,
 	(newTeamNum: number) => {
 		teamStates.value = Array(newTeamNum).fill(true);
+		colors.value = generateColors(teamNum.value);
 	},
 	{ deep: true },
 );
