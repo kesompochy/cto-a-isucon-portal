@@ -18,6 +18,7 @@ resource "aws_amplify_app" "isucon_portal" {
 
   environment_variables = {
     ENV = "test"
+    SHEET_API_KEY = var.sheet_api_key
   }
 }
 
