@@ -7,11 +7,12 @@ frontend:
         - yarn
     build:
       commands:
+        - echo "VITE_SHEET_API_ENDPOINT=$SHEET_API_ENDPOINT" >> .env
         - yarn run build
   artifacts:
     baseDirectory: frontend/dist
     files:
-      - '**/*'
+      - "**/*"
   cache:
     paths:
       - frontend/node_modules/**/*

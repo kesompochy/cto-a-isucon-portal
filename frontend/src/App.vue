@@ -2,6 +2,7 @@
 import Authenticator from './components/Authenticator.vue';
 import LineChart from './components/LineChart.vue';
 import BarChart from './components/BarChart.vue';
+import YourTeamNameIs from './components/YourTeamNameIs.vue';
 import { ref, onBeforeMount, onBeforeUnmount, watch } from 'vue';
 import { API, Auth, graphqlOperation } from 'aws-amplify';
 import { getAllScores } from './graphql/queries/getAllScores';
@@ -10,6 +11,8 @@ import { Score } from './interfaces';
 import mockScore from './mocks/scores.json';
 import Observable from 'zen-observable-ts';
 
+const sheetAPIEndpoint = import.meta.env.VITE_SHEET_API_ENDPOINT || '';
+
 const isDevelopment = ref(process.env.NODE_ENV === 'development');
 const isAuthenticated = ref(false);
 
@@ -17,6 +20,8 @@ const scores = ref<Score[]>([]);
 const teamNum = ref<number>(0);
 const colors = ref<string[]>([]);
 const teamStates = ref<boolean[]>(Array(teamNum.value).fill(true));
+const teamNames = ref<string[]>([]);
+const teamName = ref<string>('');
 
 watch(
 	() => scores.value,
@@ -34,10 +39,12 @@ watch(
 	{ deep: true },
 );
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
+	await fetchTeamNames();
 	if (process.env.NODE_ENV == 'development') {
 		scores.value = mockScore;
 		isAuthenticated.value = true;
+		teamName.value = 'ふわふわ';
 	} else {
 		Auth.currentAuthenticatedUser({ bypassCache: true })
 			.then(async () => {
@@ -49,6 +56,15 @@ onBeforeMount(() => {
 				onBeforeUnmount(() => {
 					unsubscribeFromNewScores(subscription);
 				});
+
+				const user = await Auth.currentAuthenticatedUser();
+				const username = user.username;
+				if (username == 'admin') {
+					teamName.value = 'admin';
+				} else {
+					const teamId = parseInt(username.replace('team', ''), 10);
+					teamName.value = teamNames.value[teamId - 1];
+				}
 			})
 			.catch(() => {
 				isAuthenticated.value = false;
@@ -69,6 +85,20 @@ const calcTeamNumFromScores = (scores: Score[]): number => {
 
 	// teamNumにSetのサイズ（異なるteam_idの数）を設定
 	return teamIds.size;
+};
+
+const fetchTeamNames = async () => {
+	try {
+		const response = await fetch(sheetAPIEndpoint);
+		const data = await response.json();
+		const rowData = data.sheets[0].data[0].rowData.slice(1);
+
+		teamNames.value = rowData.map((row: any, index: number) => {
+			return row.values[1]?.formattedValue || `チーム${index}`;
+		});
+	} catch (error) {
+		console.error('Failed to fetch team names:', error);
+	}
 };
 
 const fetchScores = async () => {
@@ -145,25 +175,33 @@ const generateColors = (numTeams: number) => {
 const onClickTeamLegend = (index: number) => {
 	// すべてのチームがtrueなら、クリックされたチームのみをtrueにする
 	if (teamStates.value.every((teamState) => teamState)) {
-		teamStates.value = Array(10).fill(false);
+		teamStates.value = Array(teamNum.value).fill(false);
 		teamStates.value[index] = true;
 		return;
 	} else {
-		teamStates.value = Array(10).fill(true);
+		teamStates.value = Array(teamNum.value).fill(true);
 	}
 };
 </script>
 
 <template>
 	<div class="app-container" v-if="isAuthenticated">
+		<YourTeamNameIs :team-name="teamName" />
 		<LineChart
 			:scores="scores"
 			:colors="colors"
 			:screenSize="{ width: 800, height: 600 }"
 			:team-states="teamStates"
 			:click-team-legend="onClickTeamLegend"
+			:team-names="teamNames"
 		/>
-		<BarChart :scores="scores" :colors="colors" />
+		<BarChart
+			:scores="scores"
+			:colors="colors"
+			:team-states="teamStates"
+			:click-team-score="onClickTeamLegend"
+			:team-names="teamNames"
+		/>
 		<button v-if="isDevelopment" @click="fetchScores">Get Score</button>
 		<button @click="signOut">Sign Out</button>
 	</div>
