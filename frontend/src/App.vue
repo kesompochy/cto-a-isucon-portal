@@ -10,6 +10,8 @@ import { Score } from './interfaces';
 import mockScore from './mocks/scores.json';
 import Observable from 'zen-observable-ts';
 
+const sheetAPIEndpoint = process.env.SHEET_API_ENDPOINT || '';
+
 const isDevelopment = ref(process.env.NODE_ENV === 'development');
 const isAuthenticated = ref(false);
 
