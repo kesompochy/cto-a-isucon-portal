@@ -5,6 +5,8 @@ import { Score } from '../interfaces';
 interface Props {
 	scores: Score[];
 	colors: string[];
+	teamStates: boolean[];
+	clickTeamScore: (team_id: number) => void;
 }
 
 const props = defineProps<Props>();
@@ -56,7 +58,23 @@ const generateBarWidth = (score: number) => {
 	<legend>現在スコア</legend>
 	<div class="scoreboard">
 		<transition-group name="bar-animation" tag="div">
-			<div class="bar" v-for="score in sortedScores" :key="score.team_id">
+			<div
+				class="bar"
+				v-for="(score, index) in sortedScores"
+				:key="score.team_id"
+				:class="teamStates[score.team_id] ? 'focused' : 'unfocused'"
+				@click="clickTeamScore(score.team_id)"
+			>
+				<div
+					class="rank"
+					:class="{
+						first: index === 0,
+						'second-to-fifth': index > 0 && index < 5,
+						other: index >= 5,
+					}"
+				>
+					{{ index + 1 }}
+				</div>
 				<div class="bar-wrapper">
 					<div
 						class="bar-fill"
@@ -92,6 +110,36 @@ const generateBarWidth = (score: number) => {
 	display: flex;
 	align-items: center;
 	margin-bottom: 8px;
+	cursor: pointer;
+	&.focused {
+		opacity: 1;
+	}
+	&.unfocused {
+		opacity: 0.2;
+	}
+	&:hover {
+		background-color: azure;
+	}
+
+	.rank {
+		margin-right: 16px;
+		width: 50px;
+		font-size: 1em;
+		font-weight: bold;
+
+		&.first {
+			font-size: 2em;
+		}
+
+		&.second-to-fifth {
+			font-size: 1.5em;
+		}
+
+		&.other {
+			/* それ以外の順位 */
+			color: #333;
+		}
+	}
 }
 
 .bar-wrapper {

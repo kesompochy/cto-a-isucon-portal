@@ -163,7 +163,12 @@ const onClickTeamLegend = (index: number) => {
 			:team-states="teamStates"
 			:click-team-legend="onClickTeamLegend"
 		/>
-		<BarChart :scores="scores" :colors="colors" />
+		<BarChart
+			:scores="scores"
+			:colors="colors"
+			:team-states="teamStates"
+			:click-team-score="onClickTeamLegend"
+		/>
 		<button v-if="isDevelopment" @click="fetchScores">Get Score</button>
 		<button @click="signOut">Sign Out</button>
 	</div>

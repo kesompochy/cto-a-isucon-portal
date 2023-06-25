@@ -231,13 +231,17 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 
 	// Clear canvas.
 	ctx.clearRect(0, 0, screenSize.width, screenSize.height);
-	ctx.fillStyle = 'rgba(230, 230, 230, 0.5)';
+	ctx.fillStyle = 'rgba(250, 250, 250, 1)';
 	ctx.fillRect(0, 0, screenSize.width, screenSize.height);
 
 	scores.sort((a, b) => a.timestamp - b.timestamp);
 
 	const timestampLabelWidth = ctx.measureText(formatTimeAsHHMM(currentTimestamp)).width;
 
+	const scaleGraphX = (timestamp: number) =>
+		padding.left +
+		((timestamp - minTimestamp) / (currentTimestamp - minTimestamp)) *
+			(screenSize.width - padding.left - padding.right);
 	const scaleX = (timestamp: number) =>
 		padding.left +
 		((timestamp - minTimestamp) / (currentTimestamp - minTimestamp)) *
@@ -298,7 +302,7 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 		ctx.beginPath();
 		ctx.moveTo(scaleX(teamScores[0]?.timestamp || 1), scaleY(teamScores[0]?.score || 1));
 		teamScores.slice(1).forEach((score) => {
-			ctx.lineTo(scaleX(score.timestamp), scaleY(score.score));
+			ctx.lineTo(scaleGraphX(score.timestamp), scaleY(score.score));
 		});
 		ctx.stroke();
 	});
@@ -336,14 +340,17 @@ canvas {
 .legend-item {
 	display: flex;
 	align-items: center;
-	margin-right: 10px;
-	margin-bottom: 10px;
+	padding: 5px;
 	cursor: pointer;
 	&.focused {
 		opacity: 1;
 	}
 	&.unfocused {
 		opacity: 0.2;
+	}
+
+	&:hover {
+		background-color: azure;
 	}
 
 	//テキストを選択されないようにしたい
