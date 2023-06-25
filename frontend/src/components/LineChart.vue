@@ -12,6 +12,7 @@ interface Props {
 	screenSize: { width: number; height: number };
 	teamStates: boolean[];
 	clickTeamLegend: Function;
+	teamNames: string[];
 }
 
 const displayResolution = window.devicePixelRatio || 1;
@@ -321,7 +322,7 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 			@click="clickTeamLegend(index)"
 		>
 			<span class="legend-color" :style="{ background: color }"></span>
-			<span class="legend-label">チーム {{ index }}</span>
+			<span class="legend-label">{{ teamNames[index] || `チーム${index}` }}</span>
 		</div>
 	</div>
 </template>

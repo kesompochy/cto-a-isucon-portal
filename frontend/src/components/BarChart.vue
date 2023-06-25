@@ -6,6 +6,7 @@ interface Props {
 	scores: Score[];
 	colors: string[];
 	teamStates: boolean[];
+	teamNames: string[];
 	clickTeamScore: (team_id: number) => void;
 }
 
@@ -87,7 +88,9 @@ const generateBarWidth = (score: number) => {
 				</div>
 				<div class="bar-info">
 					<div class="score">{{ score.score }}</div>
-					<div class="team-id">チーム{{ score.team_id }}</div>
+					<div class="team-id">
+						{{ teamNames[score.team_id] || `チーム${score.team_id}` }}
+					</div>
 				</div>
 			</div>
 		</transition-group>
