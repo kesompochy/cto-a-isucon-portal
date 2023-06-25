@@ -145,11 +145,11 @@ const generateColors = (numTeams: number) => {
 const onClickTeamLegend = (index: number) => {
 	// すべてのチームがtrueなら、クリックされたチームのみをtrueにする
 	if (teamStates.value.every((teamState) => teamState)) {
-		teamStates.value = Array(10).fill(false);
+		teamStates.value = Array(teamNum.value).fill(false);
 		teamStates.value[index] = true;
 		return;
 	} else {
-		teamStates.value = Array(10).fill(true);
+		teamStates.value = Array(teamNum.value).fill(true);
 	}
 };
 </script>
