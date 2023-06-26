@@ -3,7 +3,8 @@ import Authenticator from './components/Authenticator.vue';
 import LineChart from './components/LineChart.vue';
 import BarChart from './components/BarChart.vue';
 import YourTeamNameIs from './components/YourTeamNameIs.vue';
-import { ref, onBeforeMount, onBeforeUnmount, watch } from 'vue';
+import MessageFromBench from './components/MessageFromBench.vue';
+import { ref, onBeforeMount, onBeforeUnmount, watch, computed } from 'vue';
 import { API, Auth, graphqlOperation } from 'aws-amplify';
 import { getAllScores } from './graphql/queries/getAllScores';
 import { onNewScore } from './graphql/queries/onNewScore';
@@ -39,9 +40,34 @@ watch(
 	{ deep: true },
 );
 
+/*
+const lastMessage = computed((): {message: string, timestamp: number} => {
+	// ユーザーIDが一致するスコアを検索
+	if (teamName.value == 'admin') {
+		return {
+			message: "you are admin",
+			timestamp: 0
+		}
+	} else {
+			const userId = parseInt(teamName.value.replace('team', ''));
+			const userScores = scores.value.filter(score => score.team_id === userId);
+
+			// 最大のタイムスタンプを持つスコアを検索
+			const maxTimestampScore = userScores.reduce((maxScore, currentScore) => {
+				return (currentScore.timestamp > maxScore.timestamp) ? currentScore : maxScore;
+			}, userScores[0]);
+
+			// 最後のメッセージを取得
+			return maxTimestampScore ? {
+				message: maxTimestampScore.messages.slice(-1)[0],
+				timestamp: maxTimestampScore.timestamp
+			} : {message: '', timestamp: 0};
+	}
+});*/
+
 onBeforeMount(async () => {
 	await fetchTeamNames();
-	if (process.env.NODE_ENV == 'development') {
+	if (process.env.NODE_ENV !== 'development') {
 		scores.value = mockScore;
 		isAuthenticated.value = true;
 		teamName.value = 'ふわふわ';
@@ -133,6 +159,7 @@ const subscribeToNewScores = () => {
 					team_id: newScore.team_id,
 					score: newScore.score,
 					timestamp: newScore.timestamp,
+					messages: newScore.messages,
 				});
 			}
 		},
@@ -187,6 +214,7 @@ const onClickTeamLegend = (index: number) => {
 <template>
 	<div class="app-container" v-if="isAuthenticated">
 		<YourTeamNameIs :team-name="teamName" />
+		<MessageFromBench :message="lastMessage.message" :timestamp="lastMessage.timestamp" />
 		<LineChart
 			:scores="scores"
 			:colors="colors"
