@@ -283,6 +283,7 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 			team_id: teamId,
 			score: latestScore.score,
 			timestamp: currentTimestamp,
+			messages: []
 		};
 		scoresByTeam[teamId].push(currentScore);
 	});

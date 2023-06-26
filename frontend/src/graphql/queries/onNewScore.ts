@@ -4,6 +4,7 @@ export const onNewScore = `
             team_id
             score
             timestamp
+            messages
         }
     }
 `;

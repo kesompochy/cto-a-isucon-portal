@@ -4,6 +4,7 @@ export const getAllScores = `
         team_id
         score
         timestamp
+        messages
     }
   }
 `
