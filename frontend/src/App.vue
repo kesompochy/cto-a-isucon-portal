@@ -72,7 +72,7 @@ watch(
 				teamName.value = 'admin';
 			} else {
 				teamId.value = parseInt(username.value.replace('team', ''), 10);
-				teamName.value = teamNames.value[teamId.value - 1];
+				teamName.value = teamNames.value[teamId.value];
 			}
 		}
 	},
@@ -122,6 +122,7 @@ const fetchTeamNames = async () => {
 		const response = await fetch(sheetAPIEndpoint);
 		const data = await response.json();
 		const rowData = data.sheets[0].data[0].rowData.slice(1);
+		console.log(rowData)
 
 		teamNames.value = rowData.map((row: any, index: number) => {
 			return row.values[1]?.formattedValue || `チーム${index}`;
