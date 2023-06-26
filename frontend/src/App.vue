@@ -24,7 +24,7 @@ const teamStates = ref<boolean[]>(Array(teamNum.value).fill(true));
 const teamNames = ref<string[]>([]);
 const teamName = ref<string>('');
 const username = ref<string>('');
-const messageFromBench = ref<{message: string, timestamp: number}>({message: '', timestamp: 0});
+const messageFromBench = ref<{message: string[], timestamp: number}>({message: [], timestamp: 0});
 const teamId = ref<number>(0);
 
 watch(
@@ -75,6 +75,7 @@ onBeforeMount(async () => {
 				isAuthenticated.value = true;
 				const subscription = subscribeToNewScores();
 				await fetchScores();
+				
 				// コンポーネントがアンマウントされるときにサブスクリプションを解除する
 				onBeforeUnmount(() => {
 					unsubscribeFromNewScores(subscription);
@@ -99,7 +100,7 @@ const extractMessage = (scores: Score[]) => {
 		}, {timestamp: 0, messages: ['']});
 		
 		// get the last message from the latestMessage
-		const lastMessage = latestMessage.messages[latestMessage.messages.length - 1];
+		const lastMessage = latestMessage.messages;
 
 		// set the messageFromBench
 		messageFromBench.value = {
@@ -225,7 +226,7 @@ const onClickTeamLegend = (index: number) => {
 	<div class="app-container" v-if="isAuthenticated">
 		<div class="left-panel">
 			<YourTeamNameIs :team-name="teamName" :color="colors[teamId]"/>
-			<MessageFromBench :message="messageFromBench.message" :timestamp="messageFromBench.timestamp" />
+			<MessageFromBench :messages="messageFromBench.message" :timestamp="messageFromBench.timestamp" />
 		</div>
 		<LineChart
 			:scores="scores"
