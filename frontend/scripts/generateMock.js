@@ -3,10 +3,10 @@ import fs from 'fs';
 // ミリ秒を秒に変換するための定数
 const MS_TO_SEC = 1e3;
 
-const generateRandomMessages = (number) => {
+const generateRandomMessages = (number, timestamp) => {
 	const messages = [];
 	for (let i = 0; i < number; i++) {
-		messages.push(`これはベンチマーカーからのメッセージです ${i}`);
+		messages.push(`これはベンチマーカーからのメッセージです ${i}, ${timestamp}`);
 	}
 	return messages;
 }
@@ -26,7 +26,7 @@ const generateMockData = (sinceHour, teamCount) => {
 			team_id: i,
 			score: 0,
 			timestamp: hoursAgoTimestamp,
-			messages: generateRandomMessages(1 + (Math.random()*10) | 0),
+			messages: generateRandomMessages(1 + (Math.random()*10) | 0, hoursAgoTimestamp),
 		});
 
 		let score = 0;
@@ -40,7 +40,7 @@ const generateMockData = (sinceHour, teamCount) => {
 				team_id: i,
 				score: score,
 				timestamp: timestamp,
-				messages: generateRandomMessages(1 + (Math.random()*10) | 0),
+				messages: generateRandomMessages(1 + (Math.random()*10) | 0, timestamp),
 			});
 		}
 	}
