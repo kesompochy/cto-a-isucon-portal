@@ -11,6 +11,11 @@ resource "aws_amplify_app" "isucon_portal" {
 
   # The default rewrites and redirects added by the Amplify Console.
   custom_rule {
+    source = "https://hikakin-tv.com"
+    status = "302"
+    target = "https://www.hikakin-tv.com"
+  }
+  custom_rule {
     source = "/<*>"
     status = "404"
     target = "/index.html"
@@ -18,6 +23,7 @@ resource "aws_amplify_app" "isucon_portal" {
 
   environment_variables = {
     ENV = "test"
+    SHEET_API_ENDPOINT = var.sheet_api_endpoint
   }
 }
 
