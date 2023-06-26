@@ -17,7 +17,7 @@ const formattedTimestamp = computed(() => {
 </script>
 
 <template>
-<div class="message-item" v-if="messages">
+<div class="message-item" v-if="messages.length > 0">
     <div class="message-description">
       ベンチマーカーからのメッセージ
     </div>
