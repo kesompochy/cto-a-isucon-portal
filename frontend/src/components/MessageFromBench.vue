@@ -22,8 +22,10 @@ const formattedTimestamp = computed(() => {
       ベンチマーカーからのメッセージ
     </div>
     <div class="message-content" v-for="(message, index) in messages" :key="index">
-      <span class="timestamp">{{ formattedTimestamp }}</span>
-      <span class="message">{{ message }}</span>
+      <div v-if="message">
+        <span class="timestamp">{{ formattedTimestamp }}</span>
+        <span class="message">{{ message }}</span>
+      </div>
     </div>
 </div>
 </template>
