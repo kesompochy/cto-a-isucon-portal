@@ -159,16 +159,15 @@ const generateBarWidth = (score: number) => {
 .bar-info {
 	margin-left: 8px;
 	white-space: nowrap;
-	width: 250px;
+	width: 100px;
 	.score {
 		font-weight: bold;
 	}
 	.team-id {
 		color: gray;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 }
-
-
-
 
 </style>
