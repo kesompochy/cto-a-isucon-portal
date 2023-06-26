@@ -91,6 +91,7 @@ onBeforeMount(async () => {
 			.then(async () => {
 				isAuthenticated.value = true;
 				const subscription = subscribeToNewScores();
+				fetchScores();
 				// コンポーネントがアンマウントされるときにサブスクリプションを解除する
 				onBeforeUnmount(() => {
 					unsubscribeFromNewScores(subscription);
