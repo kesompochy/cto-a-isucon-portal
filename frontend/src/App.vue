@@ -32,7 +32,7 @@ watch(
 	(newScores: Score[]) => {
 		teamNum.value = calcTeamNumFromScores(newScores);
 		
-		if (username.value !== 'admin') {
+		if (username.value == 'admin') {
 			teamId.value = parseInt(username.value.replace('team', ''));
 			const teamScores = newScores.filter(score => score.team_id === teamId.value);
 
