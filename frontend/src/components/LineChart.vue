@@ -222,8 +222,7 @@ const drawGrids = (ctx: CanvasRenderingContext2D, scores: GridInfo, currentTimes
 };
 
 const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]) => {
-	console.log(`start rendering line chart with ${scores.length} scores`);
-	console.log('scores', scores);
+	console.log(`start rendering line chart with ${scores.length} scores`, scores);
 	const minScore = Math.min(...scores.map((score) => score.score));
 	const maxScore = Math.max(...scores.map((score) => score.score));
 	const minTimestamp = scores[0]?.timestamp || 0;

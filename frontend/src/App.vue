@@ -32,7 +32,7 @@ watch(
 	(newScores: Score[]) => {
 		teamNum.value = calcTeamNumFromScores(newScores);
 		
-		if (username.value == 'admin') {
+		if (username.value !== 'admin') {
 			teamId.value = parseInt(username.value.replace('team', ''));
 			const teamScores = newScores.filter(score => score.team_id === teamId.value);
 
@@ -64,7 +64,7 @@ watch(
 watch(
 	() => isAuthenticated.value,
 	async (newIsAuthenticated: boolean) => {
-		if (newIsAuthenticated) {
+		if (newIsAuthenticated && !isDevelopment.value) {
 			await fetchScores();
 			const user = await Auth.currentAuthenticatedUser();
 			username.value = user.username;
@@ -81,7 +81,7 @@ watch(
 
 onBeforeMount(async () => {
 	await fetchTeamNames();
-	if (process.env.NODE_ENV !== 'development') {
+	if (process.env.NODE_ENV == 'development') {
 		scores.value = mockScore;
 		isAuthenticated.value = true;
 		teamName.value = 'ふわふわ';
@@ -122,7 +122,6 @@ const fetchTeamNames = async () => {
 		const response = await fetch(sheetAPIEndpoint);
 		const data = await response.json();
 		const rowData = data.sheets[0].data[0].rowData.slice(1);
-		console.log(rowData)
 
 		teamNames.value = rowData.map((row: any, index: number) => {
 			return row.values[1]?.formattedValue || `チーム${index}`;
@@ -192,7 +191,6 @@ const signOut = async () => {
 };
 
 const generateColors = (numTeams: number) => {
-	console.log(`generate colors from teamNum ${numTeams}`);
 	const colors = [];
 	for (let i = 0; i < numTeams; i++) {
 		// 色相 (Hue) を 0 から 360 で変化させる

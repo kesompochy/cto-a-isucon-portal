@@ -21,7 +21,6 @@ watch(
 	() => {
 		maxScores.value = calcTeamMaxScore(props.scores);
 		sortedScores.value = sortScores(calcTeamMaxScore(props.scores));
-		console.log('bar chart sorted scores');
 		console.log('sorted value', sortedScores.value);
 	},
 	{ deep: true },
@@ -160,14 +159,16 @@ const generateBarWidth = (score: number) => {
 .bar-info {
 	margin-left: 8px;
 	white-space: nowrap;
-	width: 100px;
+	width: 250px;
+	.score {
+		font-weight: bold;
+	}
+	.team-id {
+		color: gray;
+	}
 }
 
-.score {
-	font-weight: bold;
-}
 
-.team-id {
-	color: gray;
-}
+
+
 </style>
