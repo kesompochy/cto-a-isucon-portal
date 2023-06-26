@@ -311,26 +311,32 @@ const render = (ctx: CanvasRenderingContext2D, scores: Score[], colors: string[]
 </script>
 
 <template>
-	<legend>スコア経過</legend>
-	<canvas ref="canvasRef"></canvas>
-	<div class="legend">
-		<div
-			v-for="(color, index) in colors"
-			:key="index"
-			class="legend-item"
-			:class="teamStates[index] ? 'focused' : 'unfocused'"
-			@click="clickTeamLegend(index)"
-		>
-			<span class="legend-color" :style="{ background: color }"></span>
-			<span class="legend-label">{{ teamNames[index] || `チーム${index}` }}</span>
+	<div class="container">
+		<legend>スコア経過</legend>
+		<canvas ref="canvasRef"></canvas>
+		<div class="legend">
+			<div
+				v-for="(color, index) in colors"
+				:key="index"
+				class="legend-item"
+				:class="teamStates[index] ? 'focused' : 'unfocused'"
+				@click="clickTeamLegend(index)"
+			>
+				<span class="legend-color" :style="{ background: color }"></span>
+				<span class="legend-label">{{ teamNames[index] || `チーム${index}` }}</span>
+			</div>
 		</div>
 	</div>
+
 </template>
 
 <style lang="scss" scoped>
 canvas {
 	width: 600px;
 	height: 450px;
+}
+.container {
+	margin-bottom: 80px;
 }
 .legend {
 	display: flex;
