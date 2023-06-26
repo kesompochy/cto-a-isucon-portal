@@ -14,3 +14,7 @@ variable "auto_branch_creation_patterns" {
   type        = list(string)
   default     = ["master", "feat/**"]
 }
+
+variable "sheet_api_endpoint" {
+  type        = string
+}

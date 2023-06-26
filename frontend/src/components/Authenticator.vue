@@ -23,11 +23,16 @@ const signIn = async () => {
 </script>
 
 <template>
-	<div class="auth-container">
-		<input class="auth-input" type="text" v-model="username" placeholder="username" />
-		<input class="auth-input" type="password" v-model="password" placeholder="password" />
-		<button class="auth-button" @click="signIn">Sign In</button>
+	<div class="container">
+		<h1>わくわくISUCON研修のポータル画面だよ</h1>
+		<h2>配布されたusernameとpasswordでログインしてね</h2>
+		<div class="auth-container">
+			<input class="auth-input" type="text" v-model="username" placeholder="username" />
+			<input class="auth-input" type="password" v-model="password" placeholder="password" />
+			<button class="auth-button" @click="signIn">Sign In</button>
+		</div>
 	</div>
+
 </template>
 
 <style scoped lang="scss">

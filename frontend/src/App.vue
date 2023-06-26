@@ -3,7 +3,8 @@ import Authenticator from './components/Authenticator.vue';
 import LineChart from './components/LineChart.vue';
 import BarChart from './components/BarChart.vue';
 import YourTeamNameIs from './components/YourTeamNameIs.vue';
-import { ref, onBeforeMount, onBeforeUnmount, watch } from 'vue';
+import MessageFromBench from './components/MessageFromBench.vue';
+import { ref, onBeforeMount, onBeforeUnmount, watch} from 'vue';
 import { API, Auth, graphqlOperation } from 'aws-amplify';
 import { getAllScores } from './graphql/queries/getAllScores';
 import { onNewScore } from './graphql/queries/onNewScore';
@@ -22,11 +23,33 @@ const colors = ref<string[]>([]);
 const teamStates = ref<boolean[]>(Array(teamNum.value).fill(true));
 const teamNames = ref<string[]>([]);
 const teamName = ref<string>('');
+const username = ref<string>('');
+const messageFromBench = ref<{message: string, timestamp: number}>({message: '', timestamp: 0});
+const teamId = ref<number>(0);
 
 watch(
 	() => scores.value,
 	(newScores: Score[]) => {
 		teamNum.value = calcTeamNumFromScores(newScores);
+		
+		if (username.value == 'admin') {
+			teamId.value = parseInt(username.value.replace('team', ''));
+			const teamScores = newScores.filter(score => score.team_id === teamId.value);
+
+			// find the message with the latest timestamp
+			const latestMessage = teamScores.reduce((prev, current) => {
+				return (prev.timestamp > current.timestamp) ? prev : current;
+			}, {timestamp: 0, messages: ['']});
+			
+			// get the last message from the latestMessage
+			const lastMessage = latestMessage.messages[latestMessage.messages.length - 1];
+
+			// set the messageFromBench
+			messageFromBench.value = {
+				message: lastMessage,
+				timestamp: latestMessage.timestamp
+			};
+		}
 	},
 	{ deep: true },
 );
@@ -38,33 +61,40 @@ watch(
 	},
 	{ deep: true },
 );
+watch(
+	() => isAuthenticated.value,
+	async (newIsAuthenticated: boolean) => {
+		if (newIsAuthenticated) {
+			await fetchScores();
+			const user = await Auth.currentAuthenticatedUser();
+			username.value = user.username;
+			if (username.value == 'admin') {
+				teamName.value = 'admin';
+			} else {
+				teamId.value = parseInt(username.value.replace('team', ''), 10);
+				teamName.value = teamNames.value[teamId.value - 1];
+			}
+		}
+	},
+	{ deep: true },
+)
 
 onBeforeMount(async () => {
 	await fetchTeamNames();
-	if (process.env.NODE_ENV == 'development') {
+	if (process.env.NODE_ENV !== 'development') {
 		scores.value = mockScore;
 		isAuthenticated.value = true;
 		teamName.value = 'ふわふわ';
+		username.value = 'team1';
 	} else {
 		Auth.currentAuthenticatedUser({ bypassCache: true })
 			.then(async () => {
 				isAuthenticated.value = true;
-				await fetchScores();
-
 				const subscription = subscribeToNewScores();
 				// コンポーネントがアンマウントされるときにサブスクリプションを解除する
 				onBeforeUnmount(() => {
 					unsubscribeFromNewScores(subscription);
 				});
-
-				const user = await Auth.currentAuthenticatedUser();
-				const username = user.username;
-				if (username == 'admin') {
-					teamName.value = 'admin';
-				} else {
-					const teamId = parseInt(username.replace('team', ''), 10);
-					teamName.value = teamNames.value[teamId - 1];
-				}
 			})
 			.catch(() => {
 				isAuthenticated.value = false;
@@ -133,6 +163,7 @@ const subscribeToNewScores = () => {
 					team_id: newScore.team_id,
 					score: newScore.score,
 					timestamp: newScore.timestamp,
+					messages: newScore.messages,
 				});
 			}
 		},
@@ -186,7 +217,10 @@ const onClickTeamLegend = (index: number) => {
 
 <template>
 	<div class="app-container" v-if="isAuthenticated">
-		<YourTeamNameIs :team-name="teamName" />
+		<div class="left-panel">
+			<YourTeamNameIs :team-name="teamName" :color="colors[teamId]"/>
+			<MessageFromBench :message="messageFromBench.message" :timestamp="messageFromBench.timestamp" />
+		</div>
 		<LineChart
 			:scores="scores"
 			:colors="colors"
@@ -218,8 +252,16 @@ const onClickTeamLegend = (index: number) => {
 	</Authenticator>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .app-container {
 	width: 600px;
+}
+
+.left-panel {
+	position: fixed;
+	top: 100px;
+	left: 0;
+	background-color: rgba(255, 255, 255, 0.4);
+
 }
 </style>

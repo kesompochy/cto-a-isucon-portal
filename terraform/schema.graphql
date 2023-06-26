@@ -2,6 +2,7 @@ type TeamScoreForGraph @aws_cognito_user_pools {
   team_id: Int!
   score: Int!
   timestamp: Int!
+  messages: [String!]
 }
 
 type UpdateScoreResult @aws_api_key {
