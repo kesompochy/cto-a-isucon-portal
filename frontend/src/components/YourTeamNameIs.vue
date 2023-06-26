@@ -1,7 +1,7 @@
 <template>
 	<div class="team-name-display">
 		<p class="anataha">あなたは</p>
-		<p class="team-name">{{ teamName }}</p>
+		<p class="team-name" :style="{color: color}">{{ teamName }}</p>
 		<p class="desu">です。</p>
 	</div>
 </template>
@@ -9,6 +9,7 @@
 <script setup lang="ts">
 defineProps({
 	teamName: String,
+	color: String
 });
 </script>
 
@@ -17,11 +18,9 @@ p {
 	margin: 0;
 }
 .team-name-display {
-	position: fixed;
-	left: 0px;
-	top: 100px;
 	font-weight: bold;
 	text-align: left;
+	margin-bottom: 50px;
 	.anataha {
 		font-size: 2em;
 	}

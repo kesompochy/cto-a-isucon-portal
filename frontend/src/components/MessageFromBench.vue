@@ -17,26 +17,30 @@ const formattedTimestamp = computed(() => {
 </script>
 
 <template>
-<div class="message-item">
-    <div class="message-content">
-    {{ message }}
+<div class="message-item" v-if="message">
+    <div class="message-description">
+      ベンチマーカーからのメッセージ
     </div>
-    <div class="timestamp">
-    {{ formattedTimestamp }}
+    <div class="message-content">
+      <span class="timestamp">{{ formattedTimestamp }}</span>
+      <span class="message">{{ message }}</span>
     </div>
 </div>
 </template>
 
 <style scoped>
 .message-item {
-  /* ここにスタイルを追加します */
+  text-align: left;
 }
 
-.message-content {
-  /* メッセージのスタイルを追加します */
+.message-description {
+  font-weight: bold;
+  font-size: 1.5em;
 }
 
 .timestamp {
-  /* タイムスタンプのスタイルを追加します */
+  font-size: 0.8em;
+  color: #999;
+  margin-right: 10px;
 }
 </style>
