@@ -75,7 +75,6 @@ onBeforeMount(async () => {
 				isAuthenticated.value = true;
 				const subscription = subscribeToNewScores();
 				await fetchScores();
-				extractMessage(scores.value)
 				// コンポーネントがアンマウントされるときにサブスクリプションを解除する
 				onBeforeUnmount(() => {
 					unsubscribeFromNewScores(subscription);
@@ -85,27 +84,29 @@ onBeforeMount(async () => {
 				isAuthenticated.value = false;
 			});
 	}
+	extractMessage(scores.value)
 });
 
 const extractMessage = (scores: Score[]) => {
 	if (username.value !== 'admin') {
-			teamId.value = parseInt(username.value.replace('team', ''));
-			const teamScores = scores.filter(score => score.team_id === teamId.value);
+		console.log(`username is ${username.value}`)
+		teamId.value = parseInt(username.value.replace('team', ''));
+		const teamScores = scores.filter(score => score.team_id === teamId.value);
 
-			// find the message with the latest timestamp
-			const latestMessage = teamScores.reduce((prev, current) => {
-				return (prev.timestamp > current.timestamp) ? prev : current;
-			}, {timestamp: 0, messages: ['']});
-			
-			// get the last message from the latestMessage
-			const lastMessage = latestMessage.messages[latestMessage.messages.length - 1];
+		// find the message with the latest timestamp
+		const latestMessage = teamScores.reduce((prev, current) => {
+			return (prev.timestamp > current.timestamp) ? prev : current;
+		}, {timestamp: 0, messages: ['']});
+		
+		// get the last message from the latestMessage
+		const lastMessage = latestMessage.messages[latestMessage.messages.length - 1];
 
-			// set the messageFromBench
-			messageFromBench.value = {
-				message: lastMessage,
-				timestamp: latestMessage.timestamp
-			};
-		}
+		// set the messageFromBench
+		messageFromBench.value = {
+			message: lastMessage,
+			timestamp: latestMessage.timestamp
+		};
+	}
 }
 
 const calcTeamNumFromScores = (scores: Score[]): number => {
