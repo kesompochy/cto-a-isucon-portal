@@ -32,24 +32,7 @@ watch(
 	(newScores: Score[]) => {
 		teamNum.value = calcTeamNumFromScores(newScores);
 		
-		if (username.value !== 'admin') {
-			teamId.value = parseInt(username.value.replace('team', ''));
-			const teamScores = newScores.filter(score => score.team_id === teamId.value);
-
-			// find the message with the latest timestamp
-			const latestMessage = teamScores.reduce((prev, current) => {
-				return (prev.timestamp > current.timestamp) ? prev : current;
-			}, {timestamp: 0, messages: ['']});
-			
-			// get the last message from the latestMessage
-			const lastMessage = latestMessage.messages[latestMessage.messages.length - 1];
-
-			// set the messageFromBench
-			messageFromBench.value = {
-				message: lastMessage,
-				timestamp: latestMessage.timestamp
-			};
-		}
+		extractMessage(newScores);
 	},
 	{ deep: true },
 );
@@ -91,7 +74,8 @@ onBeforeMount(async () => {
 			.then(async () => {
 				isAuthenticated.value = true;
 				const subscription = subscribeToNewScores();
-				fetchScores();
+				await fetchScores();
+				extractMessage(scores.value)
 				// コンポーネントがアンマウントされるときにサブスクリプションを解除する
 				onBeforeUnmount(() => {
 					unsubscribeFromNewScores(subscription);
@@ -102,6 +86,27 @@ onBeforeMount(async () => {
 			});
 	}
 });
+
+const extractMessage = (scores: Score[]) => {
+	if (username.value !== 'admin') {
+			teamId.value = parseInt(username.value.replace('team', ''));
+			const teamScores = scores.filter(score => score.team_id === teamId.value);
+
+			// find the message with the latest timestamp
+			const latestMessage = teamScores.reduce((prev, current) => {
+				return (prev.timestamp > current.timestamp) ? prev : current;
+			}, {timestamp: 0, messages: ['']});
+			
+			// get the last message from the latestMessage
+			const lastMessage = latestMessage.messages[latestMessage.messages.length - 1];
+
+			// set the messageFromBench
+			messageFromBench.value = {
+				message: lastMessage,
+				timestamp: latestMessage.timestamp
+			};
+		}
+}
 
 const calcTeamNumFromScores = (scores: Score[]): number => {
 	// 異なるteam_idを追跡するためのSetを作成
