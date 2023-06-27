@@ -66,6 +66,7 @@ onBeforeMount(async () => {
 	await fetchTeamNames();
 	if (process.env.NODE_ENV == 'development') {
 		scores.value = mockScore;
+		scores.value = scores.value.filter((score: Score) => score.team_id >= 0 && score.team_id <= 39);
 		isAuthenticated.value = true;
 		teamName.value = 'ふわふわ';
 		username.value = 'team1';
@@ -145,7 +146,11 @@ const fetchScores = async () => {
 		const result = await API.graphql(graphqlOperation(getAllScores));
 		if ('data' in result) {
 			const fetchedScores = result.data.getAllScores;
-			scores.value = fetchedScores;
+			//scores.value = fetchedScores;
+			scores.value = fetchedScores.filter((score: Score) => score.team_id >= 0 && score.team_id <= 39);
+			if (username.value == "debug") {
+				scores.value = fetchedScores
+			}
 		}
 		return 0;
 	} catch (e) {
