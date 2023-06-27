@@ -35,7 +35,8 @@ const generateMockData = (sinceHour, teamCount) => {
 			timestamp <= currentTimeSec;
 			timestamp += (Math.random() * 3000) | 0
 		) {
-			score += ((Math.random() * 500000) / 100) | 0;
+			score += Math.sign((Math.random() - 0.5)) * ((Math.random() * 500000) / 100) | 0;
+			score = Math.max(score, 0);
 			scores.push({
 				team_id: i,
 				score: score,

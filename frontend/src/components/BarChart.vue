@@ -31,6 +31,7 @@ onBeforeMount(() => {
 	sortedScores.value = sortScores(calcTeamMaxScore(props.scores));
 });
 
+/*
 const calcTeamMaxScore = (scores: Score[]): number[] => {
 	const teamMaxScore: number[] = [];
 	scores.forEach((cur) => {
@@ -39,7 +40,25 @@ const calcTeamMaxScore = (scores: Score[]): number[] => {
 		}
 	});
 	return teamMaxScore;
-};
+};*/
+
+const calcTeamMaxScore = (scores: Score[]): number[] => {
+	const teamLatestScore: { [id: number]: Score } = {};
+	scores.forEach((cur) => {
+		// If this team hasn't been seen before, or if this score is more recent
+		if (!teamLatestScore[cur.team_id] || teamLatestScore[cur.team_id].timestamp < cur.timestamp) {
+			teamLatestScore[cur.team_id] = cur;
+		}
+	});
+	
+	// Convert the mapping to an array with just the scores.
+	const latestScores: number[] = [];
+	for (let team in teamLatestScore) {
+		latestScores[+team] = teamLatestScore[team].score;
+	}
+	return latestScores;
+}
+
 const sortScores = (teamMaxScore: number[]) => {
 	return teamMaxScore
 		.map((score, team_id) => ({ team_id, score }))
