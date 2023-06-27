@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onBeforeMount } from 'vue';
+import { ref, watch, onBeforeMount, computed } from 'vue';
 import { Score } from '../interfaces';
 
 interface Props {
@@ -66,11 +66,13 @@ const sortScores = (teamMaxScore: number[]) => {
 		.sort((a, b) => b.score - a.score);
 };
 
-const generateBarWidth = (score: number) => {
+const generateBarWidth = computed(()=> {
 	const maxScore = Math.max(...maxScores.value);
-	const barWidth = (score / maxScore) * 100;
-	return `${barWidth}%`;
-};
+	return (score: number) => {
+		const barWidth = (score / maxScore) * 100;
+		return `${barWidth}%`;
+	}
+});
 </script>
 
 <template>
