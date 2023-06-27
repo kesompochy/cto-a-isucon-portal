@@ -26,6 +26,7 @@ const teamName = ref<string>('');
 const username = ref<string>('');
 const messageFromBench = ref<{message: string[], timestamp: number}>({message: [], timestamp: 0});
 const teamId = ref<number>(0);
+const leftPanelIsHidden = ref<boolean>(false);
 
 watch(
 	() => scores.value,
@@ -229,27 +230,34 @@ const onClickTeamLegend = (index: number) => {
 
 <template>
 	<div class="app-container" v-if="isAuthenticated">
-		<div class="left-panel">
+		<div class="left-panel" @click="()=>{leftPanelIsHidden = !leftPanelIsHidden}"
+			:class="leftPanelIsHidden ? 'hidden' : ''"
+			>
 			<YourTeamNameIs :team-name="teamName" :color="colors[teamId]"/>
 			<MessageFromBench :messages="messageFromBench.message" :timestamp="messageFromBench.timestamp" />
 		</div>
-		<LineChart
-			:scores="scores"
-			:colors="colors"
-			:screenSize="{ width: 800, height: 600 }"
-			:team-states="teamStates"
-			:click-team-legend="onClickTeamLegend"
-			:team-names="teamNames"
-		/>
-		<BarChart
-			:scores="scores"
-			:colors="colors"
-			:team-states="teamStates"
-			:click-team-score="onClickTeamLegend"
-			:team-names="teamNames"
-		/>
-		<button v-if="isDevelopment" @click="fetchScores">Get Score</button>
-		<button @click="signOut">Sign Out</button>
+		<div class="chart-container">
+			<LineChart
+				:scores="scores"
+				:colors="colors"
+				:screenSize="{ width: 800, height: 600 }"
+				:team-states="teamStates"
+				:click-team-legend="onClickTeamLegend"
+				:team-names="teamNames"
+			/>
+			<BarChart
+				:scores="scores"
+				:colors="colors"
+				:team-states="teamStates"
+				:click-team-score="onClickTeamLegend"
+				:team-names="teamNames"
+			/>
+		</div>
+		<div class="button-container">
+			<button v-if="isDevelopment" @click="fetchScores">Get Score</button>
+			<button @click="signOut">Sign Out</button>
+		</div>
+
 	</div>
 	<Authenticator
 		class="authenticator"
@@ -266,14 +274,34 @@ const onClickTeamLegend = (index: number) => {
 
 <style scoped lang="scss">
 .app-container {
-	width: 600px;
+    width: 100%; /* Adjust as needed */
+    display: flex; /* Added */
+    flex-direction: column; /* Added */
+    justify-content: space-between; /* Added */
+}
+
+.chart-container {
+    display: flex; /* Added */
+    width: 1200px;
+}
+
+.button-container {
+    display: flex; /* Added */
+    flex-direction: column; /* Added */
+    align-items: flex-start; /* Added */
 }
 
 .left-panel {
 	position: fixed;
 	top: 100px;
 	left: 0;
-	background-color: rgba(255, 255, 255, 0.4);
-
+	background-color: rgba(250, 250, 255, 0.4);
+	&.hidden {
+		opacity: 0.2;
+	}
+	&:hover {
+		background-color: rgba(250, 250, 255, 0.9);
+		cursor: pointer;
+	}
 }
 </style>

@@ -74,8 +74,9 @@ const generateBarWidth = (score: number) => {
 </script>
 
 <template>
-	<legend>現在スコア</legend>
+	
 	<div class="scoreboard">
+		<legend>現在スコア</legend>
 		<transition-group name="bar-animation" tag="div">
 			<div
 				class="bar"
@@ -125,6 +126,7 @@ const generateBarWidth = (score: number) => {
 .scoreboard {
 	display: flex;
 	flex-direction: column;
+	width: 600px;
 }
 
 .bar {

@@ -337,6 +337,7 @@ canvas {
 }
 .container {
 	margin-bottom: 80px;
+	width: 600px;
 }
 .legend {
 	display: flex;
