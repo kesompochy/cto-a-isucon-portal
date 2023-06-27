@@ -167,6 +167,7 @@ const generateBarWidth = (score: number) => {
 		color: gray;
 		overflow: hidden;
 		text-overflow: ellipsis;
+		font-size: 0.8em;
 	}
 }
 
