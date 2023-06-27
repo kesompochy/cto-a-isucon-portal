@@ -145,8 +145,8 @@ const generateBarWidth = (score: number) => {
 }
 
 .bar-wrapper {
-	width: 100%;
 	height: 20px;
+	width: 100%;
 	background-color: rgba(0, 0, 0, 0);
 	border-radius: 4px;
 	overflow: hidden;
@@ -159,8 +159,9 @@ const generateBarWidth = (score: number) => {
 .bar-info {
 	margin-left: 8px;
 	white-space: nowrap;
-	width: 60px;
-	display: block;
+	width: 100px; // 幅を固定にする
+	overflow: hidden; // 超えたテキストを隠す
+	text-overflow: ellipsis; // 省略記号を表示
 	.score {
 		font-weight: bold;
 	}
