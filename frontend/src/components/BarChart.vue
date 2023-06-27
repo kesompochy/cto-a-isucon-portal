@@ -159,7 +159,7 @@ const generateBarWidth = (score: number) => {
 .bar-info {
 	margin-left: 8px;
 	white-space: nowrap;
-	width: 100px;
+	width: 150px;
 	.score {
 		font-weight: bold;
 	}
