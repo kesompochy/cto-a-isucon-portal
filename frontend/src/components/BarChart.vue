@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onBeforeMount, computed } from 'vue';
+import { onBeforeMount, computed } from 'vue';
 import { Score } from '../interfaces';
 
 interface Props {
@@ -12,10 +12,14 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const maxScores = ref<number[]>([]);
+//const maxScores = ref<number[]>([]);
 
-const sortedScores = ref<{ score: number; team_id: number }[]>([]);
+//const sortedScores = ref<{ score: number; team_id: number }[]>([]);
+const maxScores = computed(() => calcTeamMaxScore(props.scores));
+const sortedScores = computed(() => sortScores(maxScores.value));
 
+
+/*
 watch(
 	() => props.scores,
 	() => {
@@ -24,11 +28,11 @@ watch(
 		console.log('sorted value', sortedScores.value);
 	},
 	{ deep: true },
-);
+);*/
 
 onBeforeMount(() => {
-	maxScores.value = calcTeamMaxScore(props.scores);
-	sortedScores.value = sortScores(calcTeamMaxScore(props.scores));
+	//maxScores.value = calcTeamMaxScore(props.scores);
+	//sortedScores.value = sortScores(calcTeamMaxScore(props.scores));
 });
 
 /*
