@@ -173,12 +173,14 @@ const subscribeToNewScores = () => {
 				scoreData.value.data.onNewScore
 			) {
 				const newScore = scoreData.value.data.onNewScore;
-				scores.value.push({
-					team_id: newScore.team_id,
-					score: newScore.score,
-					timestamp: newScore.timestamp,
-					messages: newScore.messages,
-				});
+				if (username.value == "debug" || (newScore.team_id >= 0 && newScore.team_id <= 39)) {
+					scores.value.push({
+						team_id: newScore.team_id,
+						score: newScore.score,
+						timestamp: newScore.timestamp,
+						messages: newScore.messages,
+					});
+				}
 			}
 		},
 		error: (error) => {
