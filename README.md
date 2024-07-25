@@ -2,6 +2,19 @@
 
 チームごとに時系列でスコアを高めていく大会のポータル画面を提供します。
 
+## セットアップ
+
+```sh
+$ aws configure sso --profile ctoa2024
+# 情報を入力してProfileを作成
+$ aws sso login --profile ctoa2024
+$ cp terraform/terraform.tfvars.sample terraform/terraform.tfvars
+# terraform/terraform.tfvars に必要な情報を入力
+$ cd terraform
+$ terraform init
+$ terraform apply
+```
+
 ## 機能一覧
 
 - チームのスコアを保存するデータストア
