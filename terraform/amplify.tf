@@ -1,6 +1,6 @@
 resource "aws_amplify_app" "isucon_portal" {
-  name       = "isucon-portal"
-  repository = var.repository
+  name         = "isucon-portal"
+  repository   = var.repository
   access_token = var.access_token
 
   build_spec = file("${path.module}/build_spec.yaml")
@@ -22,12 +22,13 @@ resource "aws_amplify_app" "isucon_portal" {
   }
 
   environment_variables = {
-    ENV = "test"
+    ENV                = "test"
     SHEET_API_ENDPOINT = var.sheet_api_endpoint
   }
+  iam_service_role_arn = null
 }
 
 resource "aws_amplify_branch" "master" {
-  app_id  = aws_amplify_app.isucon_portal.id
+  app_id      = aws_amplify_app.isucon_portal.id
   branch_name = "master"
 }
