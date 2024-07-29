@@ -1,5 +1,5 @@
 variable "access_token" {
-  description = "Access token for the AWS Amplify app"
+  description = "Access token for the AWS Amplify app to access the repository. The needed permission is `Webhooks: Read and Write`."
   type        = string
 }
 
