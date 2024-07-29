@@ -22,8 +22,13 @@ resource "aws_amplify_app" "isucon_portal" {
   }
 
   environment_variables = {
-    ENV                = "test"
-    SHEET_API_ENDPOINT = var.sheet_api_endpoint
+    ENV                          = "test"
+    SHEET_API_ENDPOINT           = var.sheet_api_endpoint
+    AUTH_REGION                  = var.region
+    AUTH_USER_POOL_ID            = aws_cognito_user_pool.main.id
+    AUTH_USER_POOL_WEB_CLIENT_ID = aws_cognito_user_pool_client.main.id
+    APPSYNC_GRAPHQL_ENDPOINT     = aws_appsync_graphql_api.portal_api.uris.GRAPHQL
+    APPSYNC_REGION               = var.region
   }
   iam_service_role_arn = null
 }
