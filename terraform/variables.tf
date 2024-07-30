@@ -9,6 +9,12 @@ variable "repository" {
   default     = "https://github.com/kesompochy/cto-a-isucon-portal"
 }
 
+variable "ops_repository" {
+  description = "Repository URL for the operations workflow"
+  type        = string
+  default     = "https://github.com/cto-a/private-isu-ops"
+}
+
 variable "auto_branch_creation_patterns" {
   description = "Branch name for the Amplify CD"
   type        = list(string)
@@ -22,11 +28,6 @@ variable "sheet_api_endpoint" {
 variable "region" {
   type    = string
   default = "ap-northeast-1"
-}
-
-variable "ops_repository" {
-  type    = string
-  default = "https://github.com/cto-a/private-isu-ops"
 }
 
 variable "account_id" {

@@ -8,6 +8,11 @@ frontend:
     build:
       commands:
         - echo "VITE_SHEET_API_ENDPOINT=$SHEET_API_ENDPOINT" >> .env
+        - echo "VITE_AUTH_REGION=$AUTH_REGION" >> .env
+        - echo "VITE_AUTH_USER_POOL_ID=$AUTH_USER_POOL_ID" >> .env
+        - echo "VITE_AUTH_USER_POOL_WEB_CLIENT_ID=$AUTH_USER_POOL_WEB_CLIENT_ID" >> .env
+        - echo "VITE_APPSYNC_GRAPHQL_ENDPOINT=$APPSYNC_GRAPHQL_ENDPOINT" >> .env
+        - echo "VITE_APPSYNC_REGION=$APPSYNC_REGION" >> .env
         - yarn run build
   artifacts:
     baseDirectory: frontend/dist

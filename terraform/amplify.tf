@@ -22,40 +22,18 @@ resource "aws_amplify_app" "isucon_portal" {
   }
 
   environment_variables = {
-    ENV                = "test"
-    SHEET_API_ENDPOINT = var.sheet_api_endpoint
+    ENV                          = "test"
+    SHEET_API_ENDPOINT           = var.sheet_api_endpoint
+    AUTH_REGION                  = var.region
+    AUTH_USER_POOL_ID            = aws_cognito_user_pool.main.id
+    AUTH_USER_POOL_WEB_CLIENT_ID = aws_cognito_user_pool_client.main.id
+    APPSYNC_GRAPHQL_ENDPOINT     = aws_appsync_graphql_api.portal_api.uris.GRAPHQL
+    APPSYNC_REGION               = var.region
   }
-
-  iam_service_role_arn = aws_iam_role.amplify_service_role.arn
+  iam_service_role_arn = null
 }
 
 resource "aws_amplify_branch" "master" {
   app_id      = aws_amplify_app.isucon_portal.id
   branch_name = "master"
-}
-
-# Create IAM role for Amplify
-resource "aws_iam_role" "amplify_service_role" {
-  name = "AmplifyConsoleServiceRole-AmplifyRole"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "amplify.amazonaws.com"
-        }
-        Condition = {
-          ArnLike = {
-            "aws:SourceArn" = "arn:aws:amplify:${var.region}:${var.account_id}:apps/*"
-          }
-          StringEquals = {
-            "aws:SourceAccount" = var.account_id
-          }
-        }
-      }
-    ]
-  })
 }
