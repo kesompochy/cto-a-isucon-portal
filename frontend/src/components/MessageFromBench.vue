@@ -9,11 +9,11 @@ interface Props {
 const props = defineProps<Props>();
 
 // UNIXタイムスタンプを人間が読める形式に変換します。
-const formattedTimestamp = computed(() => {
+/*const formattedTimestamp = computed(() => {
   const date = new Date(props.timestamp * 1000);
   console.log(props.messages)
   return date.toLocaleString();
-});
+});*/
 
 const sortedScores = computed(() => {
   return [...props.scores].sort((a, b) => b.timestamp - a.timestamp);
