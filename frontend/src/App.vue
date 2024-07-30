@@ -156,7 +156,9 @@ const fetchScores = async () => {
 
       if ('data' in result && result.data.getAllScores) {
         const fetchedData = result.data.getAllScores;
+				console.log('fetchedData', fetchedData);
         allScores = [...allScores, ...fetchedData.scores];
+				console.log('allScores', allScores);
         nextToken = fetchedData.nextToken;
       }
 		} catch (e) {
