@@ -71,3 +71,4 @@ const getScoreDifference = (currentScore: number, previousScore: number) => {
   border-radius: 5px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
+</style>
