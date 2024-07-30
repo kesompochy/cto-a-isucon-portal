@@ -27,6 +27,7 @@ const username = ref<string>('');
 const messageFromBench = ref<{message: string[], timestamp: number}>({message: [], timestamp: 0});
 const teamId = ref<number>(0);
 const leftPanelIsHidden = ref<boolean>(false);
+const isAuthChecking = ref(true);
 
 watch(
 	() => scores.value,
@@ -71,6 +72,7 @@ onBeforeMount(async () => {
 		isAuthenticated.value = true;
 		teamName.value = 'ふわふわ';
 		username.value = 'team1';
+		isAuthChecking.value = false;
 	} else {
 		Auth.currentAuthenticatedUser({ bypassCache: true })
 			.then(async () => {
@@ -85,6 +87,9 @@ onBeforeMount(async () => {
 			})
 			.catch(() => {
 				isAuthenticated.value = false;
+			})
+			.finally(() => {
+				isAuthChecking.value = false;
 			});
 	}
 	extractMessage(scores.value)
@@ -150,7 +155,7 @@ const fetchScores = async () => {
   do {
     try {
       const result: any = await API.graphql(graphqlOperation(getAllScores, { 
-        limit: 100, // 一度に取得するスコアの数を指定
+        limit: 200, // 一度に取得するスコアの数を指定
         nextToken: nextToken 
       }));
 
@@ -244,47 +249,50 @@ const onClickTeamLegend = (index: number) => {
 </script>
 
 <template>
-	<div class="app-container" v-if="isAuthenticated">
-		<div class="left-panel" @click="()=>{leftPanelIsHidden = !leftPanelIsHidden}"
-			:class="leftPanelIsHidden ? 'hidden' : ''"
-			>
-			<YourTeamNameIs :team-name="teamName" :color="colors[teamId]"/>
-			<MessageFromBench :messages="messageFromBench.message" :timestamp="messageFromBench.timestamp" />
-		</div>
-		<div class="chart-container">
-			<LineChart
-				:scores="scores"
-				:colors="colors"
-				:screenSize="{ width: 800, height: 600 }"
-				:team-states="teamStates"
-				:click-team-legend="onClickTeamLegend"
-				:team-names="teamNames"
-			/>
-			<BarChart
-				:scores="scores"
-				:colors="colors"
-				:team-states="teamStates"
-				:click-team-score="onClickTeamLegend"
-				:team-names="teamNames"
-			/>
-		</div>
-		<div class="button-container">
-			<button v-if="isDevelopment" @click="fetchScores">Get Score</button>
-			<button @click="signOut">Sign Out</button>
-		</div>
+	<div v-if="!isAuthChecking">
+		<div class="app-container" v-if="isAuthenticated">
+			<div class="left-panel" @click="()=>{leftPanelIsHidden = !leftPanelIsHidden}"
+				:class="leftPanelIsHidden ? 'hidden' : ''"
+				>
+				<YourTeamNameIs :team-name="teamName" :color="colors[teamId]"/>
+				<MessageFromBench :messages="messageFromBench.message" :timestamp="messageFromBench.timestamp" />
+			</div>
+			<div class="chart-container">
+				<LineChart
+					:scores="scores"
+					:colors="colors"
+					:screenSize="{ width: 800, height: 600 }"
+					:team-states="teamStates"
+					:click-team-legend="onClickTeamLegend"
+					:team-names="teamNames"
+				/>
+				<BarChart
+					:scores="scores"
+					:colors="colors"
+					:team-states="teamStates"
+					:click-team-score="onClickTeamLegend"
+					:team-names="teamNames"
+				/>
+			</div>
+			<div class="button-container">
+				<button v-if="isDevelopment" @click="fetchScores">Get Score</button>
+				<button @click="signOut">Sign Out</button>
+			</div>
 
+		</div>
+		<Authenticator
+			class="authenticator"
+			v-else
+			:onSignIn="
+				() => {
+					isAuthenticated = true;
+					isAuthChecking = false;
+					fetchScores();
+				}
+			"
+		>
+		</Authenticator>
 	</div>
-	<Authenticator
-		class="authenticator"
-		v-else
-		:onSignIn="
-			() => {
-				fetchScores();
-				isAuthenticated = true;
-			}
-		"
-	>
-	</Authenticator>
 </template>
 
 <style scoped lang="scss">
