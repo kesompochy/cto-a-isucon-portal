@@ -143,22 +143,33 @@ const fetchTeamNames = async () => {
 
 const fetchScores = async () => {
 	await Auth.currentAuthenticatedUser({ bypassCache: true });
-	try {
-		const result = await API.graphql(graphqlOperation(getAllScores));
-		if ('data' in result) {
-			const fetchedScores = result.data.getAllScores;
-			//scores.value = fetchedScores;
-			scores.value = fetchedScores.filter((score: Score) => score.team_id >= 0 && score.team_id <= 39);
-			if (username.value == "debug") {
-				scores.value = fetchedScores
-			}
+
+  let allScores: Score[] = [];
+  let nextToken: string | null = null;
+
+  do {
+    try {
+      const result: any = await API.graphql(graphqlOperation(getAllScores, { 
+        limit: 1000, // 一度に取得するスコアの数を指定
+        nextToken: nextToken 
+      }));
+
+      if ('data' in result && result.data.getAllScores) {
+        const fetchedData = result.data.getAllScores;
+        allScores = [...allScores, ...fetchedData.scores];
+        nextToken = fetchedData.nextToken;
+      }
+		} catch (e) {
+			console.error('Error fetching scores', e);
+			isAuthenticated.value = false;
+			return;
 		}
-		return 0;
-	} catch (e) {
-		console.error('Error fetching score', e);
-		isAuthenticated.value = false;
-		return 0;
-	}
+	} while (nextToken);
+
+  scores.value = allScores.filter((score: Score) => score.team_id >= 0 && score.team_id <= 39);
+  if (username.value === "debug") {
+    scores.value = allScores;
+  }
 };
 
 const subscribeToNewScores = () => {
