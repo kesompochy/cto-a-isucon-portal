@@ -150,7 +150,7 @@ const fetchScores = async () => {
   do {
     try {
       const result: any = await API.graphql(graphqlOperation(getAllScores, { 
-        limit: 1000, // 一度に取得するスコアの数を指定
+        limit: 100, // 一度に取得するスコアの数を指定
         nextToken: nextToken 
       }));
 
