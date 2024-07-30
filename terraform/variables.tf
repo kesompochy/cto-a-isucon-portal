@@ -16,5 +16,19 @@ variable "auto_branch_creation_patterns" {
 }
 
 variable "sheet_api_endpoint" {
-  type        = string
+  type = string
+}
+
+variable "region" {
+  type    = string
+  default = "ap-northeast-1"
+}
+
+variable "ops_repository" {
+  type    = string
+  default = "https://github.com/cto-a/private-isu-ops"
+}
+
+variable "account_id" {
+  type = string
 }
