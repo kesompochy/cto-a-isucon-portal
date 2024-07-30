@@ -16,7 +16,19 @@ type UpdateScoreResult @aws_api_key {
 }
 
 type Query {
-  getAllScores: [TeamScoreForGraph]! @aws_cognito_user_pools
+  getAllScores(limit: Int, nextToken: String): ScoreConnection! @aws_cognito_user_pools
+}
+
+type ScoreConnection {
+  scores: [Score!]!
+  nextToken: String
+}
+
+type Score {
+  team_id: Int!
+  score: Int!
+  timestamp: Int!
+  messages: [String!]!
 }
 
 type Mutation {
