@@ -284,14 +284,10 @@ const onClickTeamLegend = (index: number) => {
 			class="authenticator"
 			v-else
 			:onSignIn="
-				async () => {
-					isAuthChecking = true;
-					try {
-						await fetchScores();
-						isAuthenticated = true;
-					} finally {
-						isAuthChecking = false;
-					}
+				() => {
+					isAuthenticated = true;
+					isAuthChecking = false;
+					fetchScores();
 				}
 			"
 		>
