@@ -29,6 +29,7 @@ resource "aws_amplify_app" "isucon_portal" {
     AUTH_USER_POOL_WEB_CLIENT_ID = aws_cognito_user_pool_client.main.id
     APPSYNC_GRAPHQL_ENDPOINT     = aws_appsync_graphql_api.portal_api.uris.GRAPHQL
     APPSYNC_REGION               = var.region
+    TEAM_COUNT                   = var.team_count
   }
   iam_service_role_arn = null
 }

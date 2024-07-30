@@ -33,3 +33,8 @@ variable "region" {
 variable "account_id" {
   type = string
 }
+
+variable "team_count" {
+  type    = number
+  default = 40
+}
