@@ -29,6 +29,8 @@ const teamId = ref<number>(0);
 const leftPanelIsHidden = ref<boolean>(false);
 const isAuthChecking = ref(true);
 
+const TEAM_COUNT = import.meta.env.VITE_TEAM_COUNT || 40;
+
 watch(
 	() => scores.value,
 	(newScores: Score[]) => {
@@ -68,7 +70,7 @@ onBeforeMount(async () => {
 	await fetchTeamNames();
 	if (process.env.NODE_ENV == 'development') {
 		scores.value = mockScore;
-		scores.value = scores.value.filter((score: Score) => score.team_id >= 0 && score.team_id <= 39);
+		scores.value = scores.value.filter((score: Score) => score.team_id >= 0 && score.team_id <= TEAM_COUNT);
 		isAuthenticated.value = true;
 		teamName.value = 'ふわふわ';
 		username.value = 'team1';
@@ -173,7 +175,7 @@ const fetchScores = async () => {
 		}
 	} while (nextToken);
 
-  scores.value = allScores.filter((score: Score) => score.team_id >= 0 && score.team_id <= 39);
+  scores.value = allScores.filter((score: Score) => score.team_id >= 0 && score.team_id <= TEAM_COUNT);
   if (username.value === "debug") {
     scores.value = allScores;
   }
@@ -191,7 +193,7 @@ const subscribeToNewScores = () => {
 				scoreData.value.data.onNewScore
 			) {
 				const newScore = scoreData.value.data.onNewScore;
-				if (username.value == "debug" || (newScore.team_id >= 0 && newScore.team_id <= 39)) {
+				if (username.value == "debug" || (newScore.team_id >= 0 && newScore.team_id <= TEAM_COUNT)) {
 					scores.value.push({
 						team_id: newScore.team_id,
 						score: newScore.score,
