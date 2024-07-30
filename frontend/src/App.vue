@@ -258,7 +258,6 @@ const onClickTeamLegend = (index: number) => {
 				:class="leftPanelIsHidden ? 'hidden' : ''"
 				>
 				<YourTeamNameIs :team-name="teamName" :color="colors[teamId]"/>
-				<MessageFromBench :scores="teamScores"/>
 			</div>
 			<div class="chart-container">
 				<LineChart
@@ -277,6 +276,7 @@ const onClickTeamLegend = (index: number) => {
 					:team-names="teamNames"
 				/>
 			</div>
+			<MessageFromBench :scores="teamScores"/>
 			<div class="button-container">
 				<button v-if="isDevelopment" @click="fetchScores">Get Score</button>
 				<button @click="signOut">Sign Out</button>
