@@ -25,6 +25,7 @@ const teamNames = ref<string[]>([]);
 const teamName = ref<string>('');
 const username = ref<string>('');
 const messageFromBench = ref<{message: string[], timestamp: number}>({message: [], timestamp: 0});
+const teamScores = ref<Score[]>([]);
 const teamId = ref<number>(0);
 const leftPanelIsHidden = ref<boolean>(false);
 const isAuthChecking = ref(true);
@@ -101,10 +102,10 @@ const extractMessage = (scores: Score[]) => {
 	if (username.value !== 'admin') {
 		console.log(`username is ${username.value}`)
 		teamId.value = parseInt(username.value.replace('team', ''));
-		const teamScores = scores.filter(score => score.team_id === teamId.value);
+		teamScores.value = scores.filter(score => score.team_id === teamId.value);
 
 		// find the message with the latest timestamp
-		const latestMessage = teamScores.reduce((prev, current) => {
+		const latestMessage = teamScores.value.reduce((prev, current) => {
 			return (prev.timestamp > current.timestamp) ? prev : current;
 		}, {timestamp: 0, messages: ['']});
 		
@@ -257,7 +258,6 @@ const onClickTeamLegend = (index: number) => {
 				:class="leftPanelIsHidden ? 'hidden' : ''"
 				>
 				<YourTeamNameIs :team-name="teamName" :color="colors[teamId]"/>
-				<MessageFromBench :messages="messageFromBench.message" :timestamp="messageFromBench.timestamp" />
 			</div>
 			<div class="chart-container">
 				<LineChart
@@ -276,11 +276,11 @@ const onClickTeamLegend = (index: number) => {
 					:team-names="teamNames"
 				/>
 			</div>
+			<MessageFromBench :scores="teamScores"/>
 			<div class="button-container">
 				<button v-if="isDevelopment" @click="fetchScores">Get Score</button>
 				<button @click="signOut">Sign Out</button>
 			</div>
-
 		</div>
 		<Authenticator
 			class="authenticator"
