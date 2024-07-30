@@ -27,7 +27,7 @@ const username = ref<string>('');
 const messageFromBench = ref<{message: string[], timestamp: number}>({message: [], timestamp: 0});
 const teamId = ref<number>(0);
 const leftPanelIsHidden = ref<boolean>(false);
-const isAuthChecking = ref<boolean>(true);
+const isAuthChecking = ref(true);
 
 watch(
 	() => scores.value,
