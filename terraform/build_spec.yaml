@@ -13,6 +13,7 @@ frontend:
         - echo "VITE_AUTH_USER_POOL_WEB_CLIENT_ID=$AUTH_USER_POOL_WEB_CLIENT_ID" >> .env
         - echo "VITE_APPSYNC_GRAPHQL_ENDPOINT=$APPSYNC_GRAPHQL_ENDPOINT" >> .env
         - echo "VITE_APPSYNC_REGION=$APPSYNC_REGION" >> .env
+        - echo "VITE_TEAM_COUNT=$TEAM_COUNT" >> .env
         - yarn run build
   artifacts:
     baseDirectory: frontend/dist
