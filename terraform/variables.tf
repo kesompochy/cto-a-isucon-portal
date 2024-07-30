@@ -12,7 +12,7 @@ variable "repository" {
 variable "ops_repository" {
   description = "Repository URL for the operations workflow"
   type        = string
-  default     = "https://github.com/cto-a/private-isu-ops"
+  default     = "cto-a/private-isu-ops"
 }
 
 variable "auto_branch_creation_patterns" {
