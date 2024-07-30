@@ -285,12 +285,12 @@ const onClickTeamLegend = (index: number) => {
 			v-else
 			:onSignIn="
 				async () => {
-					isAuthChecking.value = true;
+					isAuthChecking = true;
 					try {
 						await fetchScores();
-						isAuthenticated.value = true;
+						isAuthenticated = true;
 					} finally {
-						isAuthChecking.value = false;
+						isAuthChecking = false;
 					}
 				}
 			"
