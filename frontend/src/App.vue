@@ -278,7 +278,7 @@ const onClickTeamLegend = (index: number) => {
 					:team-names="teamNames"
 				/>
 			</div>
-			<MessageFromBench :scores="teamScores" :teamId="username=='admin' ? 'admin' : teamId"/>
+			<MessageFromBench :scores="teamScores" :teamName="username"/>
 			<div class="button-container">
 				<button v-if="isDevelopment" @click="fetchScores">Get Score</button>
 				<button @click="signOut">Sign Out</button>
