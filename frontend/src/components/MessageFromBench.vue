@@ -4,6 +4,7 @@ import { Score } from '../interfaces';
 
 interface Props {
   scores: Score[];
+  teamId: number | string;
 }
 
 const props = defineProps<Props>();
@@ -31,7 +32,7 @@ const getScoreDifference = (currentScore: number, previousScore: number) => {
 
 <template>
   <div class="message-history">
-    <h2 class="message-description">ベンチマーカーからのメッセージ</h2>
+    <h2 class="message-description">ベンチマーカーからのメッセージ: {{ props.teamId }}</h2>
     <div v-for="(score, index) in sortedScores" :key="score.timestamp" class="message-item">
       <div class="message-header">
         <span class="timestamp">{{ formatDate(score.timestamp) }}</span>
@@ -41,6 +42,7 @@ const getScoreDifference = (currentScore: number, previousScore: number) => {
                         negative: score.score < sortedScores[index + 1].score }">
           ({{ getScoreDifference(score.score, sortedScores[index + 1].score) }})
         </span>
+        <span v-if="props.teamId=='admin'" class="team-id">チームID: {{ score.team_id }}</span>
       </div>
       <div v-for="(message, msgIndex) in score.messages" :key="msgIndex" class="message-content">
         {{ message }}

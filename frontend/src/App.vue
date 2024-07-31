@@ -117,6 +117,8 @@ const extractMessage = (scores: Score[]) => {
 			message: lastMessage,
 			timestamp: latestMessage.timestamp
 		};
+	}	else {
+		teamScores.value = scores;
 	}
 }
 
@@ -276,7 +278,7 @@ const onClickTeamLegend = (index: number) => {
 					:team-names="teamNames"
 				/>
 			</div>
-			<MessageFromBench :scores="teamScores"/>
+			<MessageFromBench :scores="teamScores" :teamId="username=='admin' ? 'admin' : teamId"/>
 			<div class="button-container">
 				<button v-if="isDevelopment" @click="fetchScores">Get Score</button>
 				<button @click="signOut">Sign Out</button>
